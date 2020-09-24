@@ -42,7 +42,7 @@ public class GeradorTableScreen {
                 + " *\n"
                 + " * @author " + autor + "\n"
                 + " */");
-        codigoGerado.add("public class " + nomeClasse + " extends JFrame{\n");
+        codigoGerado.add("public class " + nomeClasse + " extends JDialog{\n");
         gerarContainers();
         gerarPanels();
         gerarColunasLinhas(false);
@@ -127,13 +127,12 @@ public class GeradorTableScreen {
                 + "        panBody.add(scrollTable);\n"
                 + "        scrollTable.setViewportView(listTable);\n"
                 + "        tableModel.setDataVector(dados, colunas);");
-        gerarPack();
+        gerarLastDefaultConfigurations();
         codigoGerado.add("}");
     }
 
     private void gerarScreenDefaultConfigurations() {
-        codigoGerado.add("setVisible(true);\n"
-                + "        setDefaultCloseOperation(DISPOSE_ON_CLOSE);\n"
+        codigoGerado.add("        setDefaultCloseOperation(DISPOSE_ON_CLOSE);\n"
                 + "        setLocationRelativeTo(null);\n"
                 + "        setTitle(\"CRUD - " + entidade.toUpperCase() + "\");\n");
     }
@@ -149,8 +148,10 @@ public class GeradorTableScreen {
                 + "        container.add(panBody, BorderLayout.CENTER);\n");
     }
     
-    private void gerarPack() {
-        codigoGerado.add("\n\tpack();");
+    private void gerarLastDefaultConfigurations() {
+        codigoGerado.add("\n\tsetModal(true);"
+                + "\tpack();" 
+                + "\tsetVisible(true);\n");
     }
 
     private void criarArquivo() {
