@@ -54,7 +54,7 @@ public class ScreenGerador extends JFrame {
     Tools tools = new Tools();
 
 //INSTANCIA DOS CONTAINERS
-    Container container;
+    Container cp;
 
 //INSTANCIA DOS PANELS
     //PANELS BASE
@@ -129,13 +129,13 @@ public class ScreenGerador extends JFrame {
         btnGerar.setEnabled(false);
 
         //CONTAINER CONFIGURATIONS
-        container = getContentPane();
-        container.setLayout(new BorderLayout());
-        container.add(panNorth, BorderLayout.NORTH);
-        container.add(panSouth, BorderLayout.SOUTH);
-        container.add(panEast, BorderLayout.EAST);
-        container.add(panWest, BorderLayout.WEST);
-        container.add(panBody, BorderLayout.CENTER);
+        cp = getContentPane();
+        cp.setLayout(new BorderLayout());
+        cp.add(panNorth, BorderLayout.NORTH);
+        cp.add(panSouth, BorderLayout.SOUTH);
+        cp.add(panEast, BorderLayout.EAST);
+        cp.add(panWest, BorderLayout.WEST);
+        cp.add(panBody, BorderLayout.CENTER);
 
         //PAN NORTH CONFIGURATIONS
         panNorth.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -214,7 +214,7 @@ public class ScreenGerador extends JFrame {
                             DialogMessageType.ERROR,
                             excep.getMessage(),
                             "CAMPOS VAZIOS",
-                            container);
+                            cp);
                 }
 
             }
@@ -269,7 +269,7 @@ public class ScreenGerador extends JFrame {
                             DialogMessageType.ERROR,
                             excep.getMessage(),
                             "VARIÁVEL SEM NOME",
-                            container);
+                            cp);
                 }
             }
         });
@@ -313,7 +313,7 @@ public class ScreenGerador extends JFrame {
                                     DialogMessageType.INFO,
                                     "Sua CRUD foi gerada com sucesso",
                                     "GERAÇÃO CONCLUÍDA",
-                                    container);
+                                    cp);
                             atributos.clear();
                             txtEnt.setEnabled(true);
                             txtAutor.setEnabled(true);
@@ -336,7 +336,7 @@ public class ScreenGerador extends JFrame {
                             DialogMessageType.ERROR,
                             excep.getMessage(),
                             "FALHA AO GERAR",
-                            container);
+                            cp);
                 }
             }
         });
