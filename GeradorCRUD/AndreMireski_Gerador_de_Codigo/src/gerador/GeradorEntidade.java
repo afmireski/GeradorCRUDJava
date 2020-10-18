@@ -20,7 +20,7 @@ public class GeradorEntidade {
 
     private final String nomeClasse;
     private final List<String> atributos;
-    private final String destinyPackage;
+    private final String destino;
     private final String autor;
 
     private final List<String> codigoGerado = new ArrayList();
@@ -29,13 +29,13 @@ public class GeradorEntidade {
             String destinyPackage, String autor) {
         this.nomeClasse = nomeClasse;
         this.atributos = atributos;
-        this.destinyPackage = destinyPackage;
+        this.destino = destinyPackage;
         this.autor = autor;
         this.gerar();
     }
 
     private void gerar() {
-        codigoGerado.add("package " + destinyPackage + ";");
+        codigoGerado.add("package " + destino + ";");
         codigoGerado.add("/**\n"
                 + " *\n"
                 + " * @author " + autor + "\n"
@@ -118,7 +118,7 @@ public class GeradorEntidade {
 
     private void criarArquivo() {
         ManipulaArquivo manipulaArquivo = new ManipulaArquivo();
-        manipulaArquivo.salvarArquivo("src/" + destinyPackage + "/" + nomeClasse + ".java", codigoGerado);
+        manipulaArquivo.salvarArquivo("src/" + destino + "/" + nomeClasse + ".java", codigoGerado);
     }
 
 }
