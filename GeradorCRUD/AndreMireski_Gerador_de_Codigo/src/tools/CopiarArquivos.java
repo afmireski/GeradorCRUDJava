@@ -12,7 +12,7 @@ import java.io.OutputStream;
 public class CopiarArquivos {
 
     public int copiar(String origem, String destino) {
-        //  System.out.println("Origem >"+origem+ " Destino >"+destino);
+//          System.out.println("Origem >"+origem+ " Destino >"+destino);
         try {
             InputStream in;
             in = new FileInputStream(origem);
@@ -34,7 +34,7 @@ public class CopiarArquivos {
                 System.out.println("Erro na cópia");
             }
         } catch (FileNotFoundException ex) {
-            System.out.println("Erro na cópia - arquivo não encontrado");
+            System.out.println(ex.getMessage());
             return -1;
         }
         return 0;

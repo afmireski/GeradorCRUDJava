@@ -13,11 +13,13 @@ import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerListModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -73,6 +75,15 @@ public class GenericComponents {
         return  comboBox;
     }
     
+    
+    ///FILE CHOOSER
+    public JFileChooser createFileChooser(FileNameExtensionFilter filter, int selectedMode){
+        JFileChooser jFileChooser = new JFileChooser();
+        jFileChooser.setFileFilter(filter);
+        jFileChooser.setFileSelectionMode(selectedMode);
+        
+        return jFileChooser;
+    }
     
     
 }

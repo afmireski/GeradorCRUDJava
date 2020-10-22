@@ -7,6 +7,7 @@ package gerador;
 
 import enums.DialogConfirmType;
 import enums.DialogMessageType;
+import functions.FileManager;
 import helpers.BuildConfirmDialog;
 import helpers.BuildMessageDialog;
 import helpers.Capitalize;
@@ -21,19 +22,23 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import tools.CaixaDeFerramentas;
+import tools.ManipulaArquivo;
 import tools.Tools;
 
 /**
@@ -48,9 +53,13 @@ public class ScreenGerador extends JFrame {
     BuildConfirmDialog confirmDialog;
     ErrorTools errorTools = new ErrorTools();
     Capitalize capitalize = new Capitalize();
+    
+    //INSTANCIA DAS FUNCTIONS
+    FileManager fileManager = new FileManager();
 
 //INSTANCIA DAS TOOLS
     final private CaixaDeFerramentas cf = new CaixaDeFerramentas();
+    ManipulaArquivo manipulaArquivo = new ManipulaArquivo();
     Tools tools = new Tools();
 
 //INSTANCIA DOS CONTAINERS
@@ -65,9 +74,14 @@ public class ScreenGerador extends JFrame {
     JPanel panBody = new JPanel();
 
 //NORTH PANELS
-    JPanel panNort1 = new JPanel();
-    JPanel panNort2 = new JPanel();
-    JPanel panNort3 = new JPanel();
+    //SUB NORTH PANELS    
+    JPanel panSubNorth1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    JPanel panSubNorth2 = new JPanel(new GridLayout(1, 3));
+    
+    JPanel panPath = new JPanel();
+    JPanel panNorth1 = new JPanel();
+    JPanel panNorth2 = new JPanel();
+    JPanel panNorth3 = new JPanel();
 
 //BODY PANELS
     JPanel panL1C1 = new JPanel(); //Painel referente a posição da grade: Linha 1 - Coluna 1
@@ -84,6 +98,9 @@ public class ScreenGerador extends JFrame {
     JButton btnAdd = new JButton("Adicionar");
     JButton btnGerar = new JButton("Gerar");
     JButton btnCancel = new JButton("Cancel");
+    JButton btnPath = new JButton("Caminho");
+    JButton btnGerarEstrutura = new JButton("Gerar Estrutura");
+    JButton btnVisualizarVariaveis = new JButton("Visualizar Variáveis");
 
     //INSTANCIA DOS LABELS
     JLabel lblEnt = new JLabel("ENTIDADE");
@@ -91,11 +108,14 @@ public class ScreenGerador extends JFrame {
     JLabel lblTipo = new JLabel("TIPO");
     JLabel lblVar = new JLabel("VARIÁVEL");
     JLabel lblSize = new JLabel("TAMANHO DO CAMPO");
+    JLabel lblChoose = new JLabel("CAMINHO DE DESTINO: ");
 
     //INSTANCIA DOS TEXTFIELD
     JTextField txtEnt = new JTextField(10);
     JTextField txtAutor = new JTextField(10);
     JTextField txtVar = new JTextField(10);
+    JTextField txtPath = new JTextField(30);
+    
 
     //INSTANCIA DOS SPINNERS
     JSpinner spnFieldSize;
@@ -109,12 +129,34 @@ public class ScreenGerador extends JFrame {
 
     //INSTANCIA DO LIST ATRIBUTOS;
     List<String> atributos = new ArrayList<>();
+    
+    //INSTANCIA DOS CAMINHOS PADRÃO
+    String caminhos[] = {"\\src\\models", "\\src\\screens", "\\src\\controllers", 
+    "\\src\\enums", "\\src\\functions", "\\src\\helpers", "\\src\\tools", "\\src\\icons", 
+    "\\src\\main"};
+    List<String> caminhosDefault = Arrays.asList(caminhos);
+    
+    //INSTACIA DOS FILE CHOOSER
+    private JFileChooser fileChooser = components.createFileChooser(
+            new FileNameExtensionFilter("DIRETÓRIO", "..", ".."), 
+            JFileChooser.DIRECTORIES_ONLY);
+    private String destinyPath;
+    private final String defaultPath = "C:\\..\\..\\..\\Documents\\NetBeansProjects";
+    
+    List<String> lastPath;
+    
+    ///INSTANCIA DA VAR TABLE;
+    VarTableScreen varTableScreen;
+        
 
     public ScreenGerador() {
         setVisible(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setTitle("GERADOR DE CRUD");
+        
+        //DESTINY PATH CONFIG;
+        verifyPath();
 
         //SPINNER CONFIG
         spnFieldSize = components.createIntSpinner(10, 1, 100, 1);
@@ -127,6 +169,10 @@ public class ScreenGerador extends JFrame {
         btnAdd.setEnabled(false);
         btnCancel.setEnabled(false);
         btnGerar.setEnabled(false);
+        btnVisualizarVariaveis.setEnabled(false);
+        
+        //TXT INITIAL CONFIGURATIONS
+        txtPath.setEditable(false);
 
         //CONTAINER CONFIGURATIONS
         cp = getContentPane();
@@ -138,27 +184,40 @@ public class ScreenGerador extends JFrame {
         cp.add(panBody, BorderLayout.CENTER);
 
         //PAN NORTH CONFIGURATIONS
-        panNorth.setLayout(new FlowLayout(FlowLayout.LEFT));
-        panNorth.add(panNort1);
-        panNorth.add(panNort2);
-        panNorth.add(panNort3);
+        panNorth.setLayout(new GridLayout(2, 1));
+        panNorth.add(panSubNorth1);
+        panNorth.add(panSubNorth2);
+        
+        //PAN SUB NOTH CONFIGURATIONS
+        panSubNorth1.add(panPath);
+        
+        panSubNorth2.add(panNorth1);
+        panSubNorth2.add(panNorth2);
+        panSubNorth2.add(panNorth3);
+        
+                
+        //CONFIGURATION PAN PATH
+        panPath.add(lblChoose);
+        panPath.add(txtPath);
+        panPath.add(btnPath);
+        
+        //CONFIGURATION NORTH1
+        panNorth1.add(lblEnt);
+        panNorth1.add(txtEnt);
 
-        //CONFIGURATION NORT1
-        panNort1.add(lblEnt);
-        panNort1.add(txtEnt);
-
-        //CONFIGURATION NORT2
-        panNort2.add(lblAutor);
-        panNort2.add(txtAutor);
-        //CONFIGURATION NORT3
-        panNort3.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        panNort3.add(btnInit);
-        panNort3.add(btnCancel);
+        //CONFIGURATION NORTH2
+        panNorth2.add(lblAutor);
+        panNorth2.add(txtAutor);
+        //CONFIGURATION NORTH3
+        panNorth3.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        panNorth3.add(btnInit);
+        panNorth3.add(btnCancel);
 
         //PAN EAST CONFIGURATIONS
         //PAN WEST CONFIGURATIONS
         //PAN SOUTH CONFIGURATIONS
         panSouth.add(btnGerar);
+        panSouth.add(btnGerarEstrutura);
 
         //PAN BODY CONFIGURATIONS
         panBody.setBorder(BorderFactory.createLineBorder(Color.black, 5));
@@ -187,6 +246,7 @@ public class ScreenGerador extends JFrame {
         panL3C2.add(spnFieldSize);
 
         //Prenchimento Linha 4        
+        panL4C1.add(btnVisualizarVariaveis);
         panL4C2.add(btnAdd);
 
         btnInit.addActionListener(new ActionListener() {
@@ -228,6 +288,7 @@ public class ScreenGerador extends JFrame {
                 btnAdd.setEnabled(false);
                 btnCancel.setEnabled(false);
                 btnGerar.setEnabled(false);
+                btnVisualizarVariaveis.setEnabled(false);
 
                 txtEnt.setEnabled(true);
                 txtAutor.setEnabled(true);
@@ -259,6 +320,9 @@ public class ScreenGerador extends JFrame {
                         txtVar.setText("");
                         spnFieldSize.setValue(10);
                         combTypeSelect.requestFocus();
+                        if (!atributos.isEmpty()) {
+                            btnVisualizarVariaveis.setEnabled(true);
+                        }
                         if (!atributos.isEmpty() && atributos.size() > 1) {
                             btnGerar.setEnabled(true);
                         }
@@ -270,6 +334,25 @@ public class ScreenGerador extends JFrame {
                             excep.getMessage(),
                             "VARIÁVEL SEM NOME",
                             cp);
+                }
+            }
+        });
+        
+        btnPath.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                File file = new File(destinyPath);
+                if (file.exists()) {
+                    fileChooser.setCurrentDirectory(file);
+                } else {                                         
+                    fileChooser.setCurrentDirectory(null);
+                }
+                if (fileChooser.showOpenDialog(cp) == JFileChooser.APPROVE_OPTION) {
+                    destinyPath = fileChooser.getSelectedFile().getAbsolutePath();
+                    txtPath.setText(destinyPath);
+                    lastPath.clear();
+                    lastPath.add(destinyPath);
+                    manipulaArquivo.salvarArquivo("LastPath.txt", lastPath);
                 }
             }
         });
@@ -340,6 +423,34 @@ public class ScreenGerador extends JFrame {
                 }
             }
         });
+        
+        btnGerarEstrutura.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                   fileManager.createDirectorys(destinyPath, caminhosDefault);
+                   
+                   fileManager.copyFiles(destinyPath, caminhosDefault.get(3).substring(1));
+                   fileManager.copyFiles(destinyPath, caminhosDefault.get(4).substring(1));
+                   fileManager.copyFiles(destinyPath, caminhosDefault.get(5).substring(1));
+                   fileManager.copyFiles(destinyPath, caminhosDefault.get(6).substring(1));
+                   fileManager.copyFiles(destinyPath, caminhosDefault.get(7).substring(1));
+                   
+                } catch (Exception excep) {
+                    
+                }
+            }
+        });
+        
+        btnVisualizarVariaveis.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (varTableScreen != null && varTableScreen.isActive()) {
+                    varTableScreen.dispose();
+                }
+                varTableScreen = new VarTableScreen(atributos);
+            }
+        });
 
         pack();
 
@@ -351,6 +462,20 @@ public class ScreenGerador extends JFrame {
             }
         });
 
+    }
+    
+    private void verifyPath() {
+        if (!manipulaArquivo.existeOArquivo("LastPath.txt")) {
+            manipulaArquivo.criarArquivoVazio("LastPath.txt");
+        }
+        
+        lastPath = manipulaArquivo.abrirArquivo("LastPath.txt");
+        if (!lastPath.isEmpty()) {
+            destinyPath = lastPath.get(0);
+        } else {
+            destinyPath = defaultPath;            
+        }
+        txtPath.setText(destinyPath);
     }
 
 }
