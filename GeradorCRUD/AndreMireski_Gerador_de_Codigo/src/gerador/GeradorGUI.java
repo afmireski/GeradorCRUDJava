@@ -200,7 +200,7 @@ public class GeradorGUI {
     private void gerarTableScreens() {
         codigoGerado.add("//INSTANCIA DAS TABLE SCREENS");
         codigoGerado.add(entidade + "TableScreen" + " " + capitalize.capitalizeTextLower(entidade) + "TableScreen" + ";");
-        GeradorTableScreen geradorTableScreen = new GeradorTableScreen(entidade, atributos, destinyPackage, autor, entidade);
+        GeradorTableScreen geradorTableScreen = new GeradorTableScreen(entidade, atributos, destinyPackage, destinyPath, autor, entidade);
     }
 
     private void gerarConstrutor() {

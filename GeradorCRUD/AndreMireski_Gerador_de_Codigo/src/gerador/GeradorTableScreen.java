@@ -21,13 +21,15 @@ public class GeradorTableScreen {
     private final String nomeClasse;
     private final List<String> atributos;
     private final String destinyPackage;
+    private final String destinyPath;
     private final String autor;
     private final String entidade;
 
-    public GeradorTableScreen(String nomeClasse, List<String> atributos, String destinyPackage, String autor, String entidade) {
+    public GeradorTableScreen(String nomeClasse, List<String> atributos, String destinyPackage, String destinyPath, String autor, String entidade) {
         this.nomeClasse = nomeClasse + "TableScreen";
         this.atributos = atributos;
         this.destinyPackage = destinyPackage;
+        this.destinyPath = destinyPath == null ? "" : destinyPath;
         this.autor = autor;
         this.entidade = entidade;
         this.gerar();
