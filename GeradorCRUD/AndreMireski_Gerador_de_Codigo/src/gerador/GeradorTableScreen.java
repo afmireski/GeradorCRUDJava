@@ -60,6 +60,7 @@ public class GeradorTableScreen {
                 + "import java.awt.Container;\n"
                 + "import java.awt.GridLayout;\n"
                 + "import java.util.List;\n"
+                + "import javax.swing.JDialog;\n"
                 + "import javax.swing.JFrame;\n"
                 + "import javax.swing.JPanel;\n"
                 + "import javax.swing.JScrollPane;\n"
@@ -158,7 +159,7 @@ public class GeradorTableScreen {
 
     private void criarArquivo() {
         ManipulaArquivo manipulaArquivo = new ManipulaArquivo();
-        manipulaArquivo.salvarArquivo("src/" + destinyPackage + "/" + nomeClasse + ".java", codigoGerado);
+        manipulaArquivo.salvarArquivo(destinyPath+"/src/" + destinyPackage + "/" + nomeClasse + ".java", codigoGerado);
     }
 
 }

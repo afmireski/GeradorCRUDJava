@@ -13,12 +13,12 @@
             <url>src/gerador/GeradorGUI.java</url>
             <bookmark id="1">
                 <name/>
-                <line>38</line>
+                <line>40</line>
                 <key/>
             </bookmark>
             <bookmark id="4">
                 <name/>
-                <line>203</line>
+                <line>205</line>
                 <key/>
             </bookmark>
         </file>
@@ -29,8 +29,8 @@
             <file>file:/C:/Users/Andre/Documents/GitHub/GerardorCRUDJava/GeradorCRUD/AndreMireski_Gerador_de_Codigo/src/gerador/GeradorGUI.java</file>
             <file>file:/C:/Users/Andre/Documents/GitHub/GerardorCRUDJava/GeradorCRUD/AndreMireski_Gerador_de_Codigo/src/functions/FileManager.java</file>
             <file>file:/C:/Users/Andre/Documents/GitHub/GerardorCRUDJava/GeradorCRUD/AndreMireski_Gerador_de_Codigo/src/helpers/GenericComponents.java</file>
+            <file>file:/C:/Users/Andre/Documents/GitHub/GerardorCRUDJava/GeradorCRUD/AndreMireski_Gerador_de_Codigo/src/gerador/GeradorTableScreen.java</file>
             <file>file:/C:/Users/Andre/Documents/GitHub/GerardorCRUDJava/GeradorCRUD/AndreMireski_Gerador_de_Codigo/src/gerador/ScreenGerador.java</file>
-            <file>file:/C:/Users/Andre/Documents/GitHub/GerardorCRUDJava/GeradorCRUD/AndreMireski_Gerador_de_Codigo/src/gerador/GeradorEntidade.java</file>
         </group>
     </open-files>
 </project-private>
