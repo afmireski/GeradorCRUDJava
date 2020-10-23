@@ -21,16 +21,18 @@ public class GeradorController {
     private final String nomeClasse;
     private final List<String> atributos;
     private final String destinyPackage;
+    private final String destinyPath;
     private final String autor;
     private final String entidade;
 
     private final List<String> codigoGerado = new ArrayList();
 
     public GeradorController(String nomeClasse, List<String> atributos,
-            String destinyPackage, String autor, String entidade) {
+            String destinyPackage, String destinyPath, String autor, String entidade) {
         this.nomeClasse = nomeClasse + "Controller";
         this.atributos = atributos;
         this.destinyPackage = destinyPackage != null ? destinyPackage : "controller";
+        this.destinyPath = destinyPath == null ? "" : destinyPath;
         this.autor = autor != null ? autor : "anônimo";
         this.entidade = entidade;
         gerar();
@@ -232,7 +234,7 @@ public class GeradorController {
 
     private void criarArquivo() {
         ManipulaArquivo manipulaArquivo = new ManipulaArquivo();
-        manipulaArquivo.salvarArquivo("src/" + destinyPackage + "/" + nomeClasse + ".java", codigoGerado);
+        manipulaArquivo.salvarArquivo(destinyPath + "/src/" + destinyPackage + "/" + nomeClasse + ".java", codigoGerado);
     }
 
 }

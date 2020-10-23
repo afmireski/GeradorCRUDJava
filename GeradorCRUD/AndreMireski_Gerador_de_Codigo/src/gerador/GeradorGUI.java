@@ -21,13 +21,15 @@ public class GeradorGUI {
     private final String nomeClasse;
     private final List<String> atributos;
     private final String destinyPackage;
+    private final String destinyPath;
     private final String autor;
     private final String entidade;;
 
-    public GeradorGUI(String nomeClasse, List<String> atributos, String destinyPackage, String autor, String entidade) {
+    public GeradorGUI(String nomeClasse, List<String> atributos, String destinyPackage, String destinyPath, String autor, String entidade) {
         this.nomeClasse = nomeClasse + "Screen";
         this.atributos = atributos;
         this.destinyPackage = destinyPackage;
+        this.destinyPath = destinyPath == null ? "" : destinyPath;
         this.autor = autor;
         this.entidade = entidade;
         gerar();
@@ -644,7 +646,7 @@ public class GeradorGUI {
 
     private void criarArquivo() {
         ManipulaArquivo manipulaArquivo = new ManipulaArquivo();
-        manipulaArquivo.salvarArquivo("src/" + destinyPackage + "/" + nomeClasse + ".java", codigoGerado);
+        manipulaArquivo.salvarArquivo(destinyPath + "/src/" + destinyPackage + "/" + nomeClasse + ".java", codigoGerado);
         System.out.println("GEROU!");
     }
 

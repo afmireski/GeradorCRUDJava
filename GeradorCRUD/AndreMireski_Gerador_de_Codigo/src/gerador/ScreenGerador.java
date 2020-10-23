@@ -53,7 +53,7 @@ public class ScreenGerador extends JFrame {
     BuildConfirmDialog confirmDialog;
     ErrorTools errorTools = new ErrorTools();
     Capitalize capitalize = new Capitalize();
-    
+
     //INSTANCIA DAS FUNCTIONS
     FileManager fileManager = new FileManager();
 
@@ -77,7 +77,7 @@ public class ScreenGerador extends JFrame {
     //SUB NORTH PANELS    
     JPanel panSubNorth1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
     JPanel panSubNorth2 = new JPanel(new GridLayout(1, 3));
-    
+
     JPanel panPath = new JPanel();
     JPanel panNorth1 = new JPanel();
     JPanel panNorth2 = new JPanel();
@@ -96,11 +96,15 @@ public class ScreenGerador extends JFrame {
     //INSTANCIA DOS BUTTONS
     JButton btnInit = new JButton("Init");
     JButton btnAdd = new JButton("Adicionar");
-    JButton btnGerar = new JButton("Gerar");
+    JButton btnGerar = new JButton("Gerar Completo");
     JButton btnCancel = new JButton("Cancel");
     JButton btnPath = new JButton("Caminho");
     JButton btnGerarEstrutura = new JButton("Gerar Estrutura");
+    JButton btnGerarEntidade = new JButton("Gerar Entidade");
+    JButton btnGerarController = new JButton("Gerar Controller");
+    JButton btnGerarGUI = new JButton("Gerar Interface");
     JButton btnVisualizarVariaveis = new JButton("Visualizar Variáveis");
+    JButton btnCarregarEntidade = new JButton("Abrir");
 
     //INSTANCIA DOS LABELS
     JLabel lblEnt = new JLabel("ENTIDADE");
@@ -115,7 +119,6 @@ public class ScreenGerador extends JFrame {
     JTextField txtAutor = new JTextField(10);
     JTextField txtVar = new JTextField(10);
     JTextField txtPath = new JTextField(30);
-    
 
     //INSTANCIA DOS SPINNERS
     JSpinner spnFieldSize;
@@ -129,32 +132,31 @@ public class ScreenGerador extends JFrame {
 
     //INSTANCIA DO LIST ATRIBUTOS;
     List<String> atributos = new ArrayList<>();
-    
+
     //INSTANCIA DOS CAMINHOS PADRÃO
-    String caminhos[] = {"\\src\\models", "\\src\\screens", "\\src\\controllers", 
-    "\\src\\enums", "\\src\\functions", "\\src\\helpers", "\\src\\tools", "\\src\\icons", 
-    "\\src\\main"};
+    String caminhos[] = {"\\src\\models", "\\src\\screens", "\\src\\controllers",
+        "\\src\\enums", "\\src\\functions", "\\src\\helpers", "\\src\\tools", "\\src\\icons",
+        "\\src\\main"};
     List<String> caminhosDefault = Arrays.asList(caminhos);
-    
+
     //INSTACIA DOS FILE CHOOSER
     private JFileChooser fileChooser = components.createFileChooser(
-            new FileNameExtensionFilter("DIRETÓRIO", "..", ".."), 
+            new FileNameExtensionFilter("DIRETÓRIO", "..", ".."),
             JFileChooser.DIRECTORIES_ONLY);
     private String destinyPath;
     private final String defaultPath = "C:\\..\\..\\..\\Documents\\NetBeansProjects";
-    
+
     List<String> lastPath;
-    
+
     ///INSTANCIA DA VAR TABLE;
     VarTableScreen varTableScreen;
-        
 
     public ScreenGerador() {
         setVisible(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setTitle("GERADOR DE CRUD");
-        
+
         //DESTINY PATH CONFIG;
         verifyPath();
 
@@ -165,12 +167,8 @@ public class ScreenGerador extends JFrame {
         combTypeSelect = components.createComboBox(typeList);
 
         //BUTTONS INITIAL CONFIGURATIONS
-        btnInit.setEnabled(true);
-        btnAdd.setEnabled(false);
-        btnCancel.setEnabled(false);
-        btnGerar.setEnabled(false);
-        btnVisualizarVariaveis.setEnabled(false);
-        
+        buttonInitialConfigurations();
+
         //TXT INITIAL CONFIGURATIONS
         txtPath.setEditable(false);
 
@@ -187,23 +185,23 @@ public class ScreenGerador extends JFrame {
         panNorth.setLayout(new GridLayout(2, 1));
         panNorth.add(panSubNorth1);
         panNorth.add(panSubNorth2);
-        
+
         //PAN SUB NOTH CONFIGURATIONS
         panSubNorth1.add(panPath);
-        
+
         panSubNorth2.add(panNorth1);
         panSubNorth2.add(panNorth2);
         panSubNorth2.add(panNorth3);
-        
-                
+
         //CONFIGURATION PAN PATH
         panPath.add(lblChoose);
         panPath.add(txtPath);
         panPath.add(btnPath);
-        
+
         //CONFIGURATION NORTH1
         panNorth1.add(lblEnt);
         panNorth1.add(txtEnt);
+        panNorth1.add(btnCarregarEntidade);
 
         //CONFIGURATION NORTH2
         panNorth2.add(lblAutor);
@@ -216,8 +214,11 @@ public class ScreenGerador extends JFrame {
         //PAN EAST CONFIGURATIONS
         //PAN WEST CONFIGURATIONS
         //PAN SOUTH CONFIGURATIONS
-        panSouth.add(btnGerar);
         panSouth.add(btnGerarEstrutura);
+        panSouth.add(btnGerar);
+        panSouth.add(btnGerarEntidade);
+        panSouth.add(btnGerarController);
+        panSouth.add(btnGerarGUI);
 
         //PAN BODY CONFIGURATIONS
         panBody.setBorder(BorderFactory.createLineBorder(Color.black, 5));
@@ -259,13 +260,20 @@ public class ScreenGerador extends JFrame {
                         btnInit.setEnabled(false);
                         btnAdd.setEnabled(true);
                         btnCancel.setEnabled(true);
-
+                        
+                        btnCarregarEntidade.setEnabled(false);
                         txtEnt.setEnabled(false);
                         txtAutor.setEnabled(false);
                         if (atributos.isEmpty()) {
                             btnGerar.setEnabled(false);
+                            btnGerarEntidade.setEnabled(false);
+                            btnGerarController.setEnabled(false);
+                            btnGerarGUI.setEnabled(false);
                         } else {
                             btnGerar.setEnabled(true);
+                            btnGerarEntidade.setEnabled(true);
+                            btnGerarController.setEnabled(true);
+                            btnGerarGUI.setEnabled(true);
                         }
                     }
                 } catch (Exception excep) {
@@ -284,11 +292,8 @@ public class ScreenGerador extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //BUTTONS INITIAL CONFIGURATIONS
-                btnInit.setEnabled(true);
-                btnAdd.setEnabled(false);
-                btnCancel.setEnabled(false);
-                btnGerar.setEnabled(false);
-                btnVisualizarVariaveis.setEnabled(false);
+                buttonInitialConfigurations();
+                
 
                 txtEnt.setEnabled(true);
                 txtAutor.setEnabled(true);
@@ -325,6 +330,9 @@ public class ScreenGerador extends JFrame {
                         }
                         if (!atributos.isEmpty() && atributos.size() > 1) {
                             btnGerar.setEnabled(true);
+                            btnGerarEntidade.setEnabled(true);
+                            btnGerarController.setEnabled(true);
+                            btnGerarGUI.setEnabled(true);
                         }
                     }
                 } catch (Exception excep) {
@@ -337,14 +345,14 @@ public class ScreenGerador extends JFrame {
                 }
             }
         });
-        
+
         btnPath.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 File file = new File(destinyPath);
                 if (file.exists()) {
                     fileChooser.setCurrentDirectory(file);
-                } else {                                         
+                } else {
                     fileChooser.setCurrentDirectory(null);
                 }
                 if (fileChooser.showOpenDialog(cp) == JFileChooser.APPROVE_OPTION) {
@@ -379,19 +387,24 @@ public class ScreenGerador extends JFrame {
                                     entidade,
                                     atributos,
                                     "models",
+                                    txtPath.getText(),
                                     autor);
                             GeradorController geradorController = new GeradorController(
                                     entidade,
                                     atributos,
                                     "controllers",
+                                    txtPath.getText(),
                                     autor,
                                     entidade);
                             GeradorGUI geradorGUI = new GeradorGUI(
                                     entidade,
                                     atributos,
                                     "screens",
+                                    txtPath.getText(),
                                     autor,
                                     entidade);
+                            
+                            salvarEntidadeGerada();
                             messageDialog = new BuildMessageDialog(
                                     DialogMessageType.INFO,
                                     "Sua CRUD foi gerada com sucesso",
@@ -423,25 +436,194 @@ public class ScreenGerador extends JFrame {
                 }
             }
         });
-        
+
         btnGerarEstrutura.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                   fileManager.createDirectorys(destinyPath, caminhosDefault);
-                   
-                   fileManager.copyFiles(destinyPath, caminhosDefault.get(3).substring(1));
-                   fileManager.copyFiles(destinyPath, caminhosDefault.get(4).substring(1));
-                   fileManager.copyFiles(destinyPath, caminhosDefault.get(5).substring(1));
-                   fileManager.copyFiles(destinyPath, caminhosDefault.get(6).substring(1));
-                   fileManager.copyFiles(destinyPath, caminhosDefault.get(7).substring(1));
-                   
+                    fileManager.createDirectorys(destinyPath, caminhosDefault);
+
+                    fileManager.copyFiles(destinyPath, caminhosDefault.get(3).substring(1));
+                    fileManager.copyFiles(destinyPath, caminhosDefault.get(4).substring(1));
+                    fileManager.copyFiles(destinyPath, caminhosDefault.get(5).substring(1));
+                    fileManager.copyFiles(destinyPath, caminhosDefault.get(6).substring(1));
+                    fileManager.copyFiles(destinyPath, caminhosDefault.get(7).substring(1));
+
                 } catch (Exception excep) {
-                    
+                    errorTools.showExceptionStackTrace(excep);
+                    messageDialog = new BuildMessageDialog(
+                            DialogMessageType.ERROR,
+                            "Erro ao gerrar a estrutura!",
+                            "FALHA AO GERAR",
+                            cp);
                 }
             }
         });
         
+        btnGerarEntidade.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    if (txtEnt.getText().isEmpty() || txtAutor.getText().isEmpty()) {
+                        throw new Exception("Defina uma Entidade e um Autor para continuar....");
+                    } else if (atributos.isEmpty()) {
+                        throw new Exception("Adicione pelo menos 1 variável para prosseguir....");
+                    } else {
+                        String entidade = capitalize.capitalizeVarUpper(capitalize.removerAcentos(txtEnt.getText()));
+                        String autor = txtAutor.getText();  
+                        System.out.println("ENTIDADE -> " + entidade);
+                        System.out.println("AUTOR -> " + autor);
+                        confirmDialog = new BuildConfirmDialog(
+                                DialogConfirmType.YES_NO,
+                                "Deseja realmente gerar uma Entidade?",
+                                "CONFIRMAÇÃO");
+                        if (confirmDialog.getResponse() == JOptionPane.YES_OPTION) {
+                            GeradorEntidade geradorEntidade = new GeradorEntidade(
+                                    entidade,
+                                    atributos,                                    
+                                    "models",
+                                    txtPath.getText(),
+                                    autor);                         
+                            
+                            salvarEntidadeGerada();
+                            messageDialog = new BuildMessageDialog(
+                                    DialogMessageType.INFO,
+                                    "Sua Entidade foi gerada com sucesso",
+                                    "GERAÇÃO CONCLUÍDA",
+                                    cp);
+                            atributos.clear();
+                            txtEnt.setEnabled(true);
+                            txtAutor.setEnabled(true);
+                            txtEnt.setText("");
+                            txtAutor.setText("");
+                            txtVar.setText("");
+                            combTypeSelect.setSelectedIndex(0);
+                            spnFieldSize.setValue(10);
+
+                            buttonInitialConfigurations();
+                        }
+                    }
+                } catch (Exception excep) {
+                    errorTools.showExceptionStackTrace(excep);
+                    messageDialog = new BuildMessageDialog(
+                            DialogMessageType.ERROR,
+                            excep.getMessage(),
+                            "FALHA AO GERAR",
+                            cp);
+                }
+            }
+        });
+        
+        btnGerarController.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    if (txtEnt.getText().isEmpty() || txtAutor.getText().isEmpty()) {
+                        throw new Exception("Defina uma Entidade e um Autor para continuar....");
+                    } else if (atributos.isEmpty()) {
+                        throw new Exception("Adicione pelo menos 1 variável para prosseguir....");
+                    } else {
+                        String entidade = capitalize.capitalizeVarUpper(capitalize.removerAcentos(txtEnt.getText()));
+                        String autor = txtAutor.getText();  
+                        System.out.println("ENTIDADE -> " + entidade);
+                        System.out.println("AUTOR -> " + autor);
+                        confirmDialog = new BuildConfirmDialog(
+                                DialogConfirmType.YES_NO,
+                                "Deseja realmente gerar um Controller?",
+                                "CONFIRMAÇÃO");
+                        if (confirmDialog.getResponse() == JOptionPane.YES_OPTION) {                              
+                            GeradorController geradorController = new GeradorController(
+                                    entidade,
+                                    atributos,
+                                    "controllers",
+                                    txtPath.getText(),
+                                    autor,
+                                    entidade);  
+                            
+                            salvarEntidadeGerada();
+                            messageDialog = new BuildMessageDialog(
+                                    DialogMessageType.INFO,
+                                    "Seu Controller foi gerada com sucesso",
+                                    "GERAÇÃO CONCLUÍDA",
+                                    cp);
+                            atributos.clear();
+                            txtEnt.setEnabled(true);
+                            txtAutor.setEnabled(true);
+                            txtEnt.setText("");
+                            txtAutor.setText("");
+                            txtVar.setText("");
+                            combTypeSelect.setSelectedIndex(0);
+                            spnFieldSize.setValue(10);
+
+                            buttonInitialConfigurations();
+                        }
+                    }
+                } catch (Exception excep) {
+                    errorTools.showExceptionStackTrace(excep);
+                    messageDialog = new BuildMessageDialog(
+                            DialogMessageType.ERROR,
+                            excep.getMessage(),
+                            "FALHA AO GERAR",
+                            cp);
+                }
+            }
+        });
+        
+        btnGerarGUI.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    if (txtEnt.getText().isEmpty() || txtAutor.getText().isEmpty()) {
+                        throw new Exception("Defina uma Entidade e um Autor para continuar....");
+                    } else if (atributos.isEmpty()) {
+                        throw new Exception("Adicione pelo menos 1 variável para prosseguir....");
+                    } else {
+                        String entidade = capitalize.capitalizeVarUpper(capitalize.removerAcentos(txtEnt.getText()));
+                        String autor = txtAutor.getText();  
+                        System.out.println("ENTIDADE -> " + entidade);
+                        System.out.println("AUTOR -> " + autor);
+                        confirmDialog = new BuildConfirmDialog(
+                                DialogConfirmType.YES_NO,
+                                "Deseja realmente gerar uma Interface?",
+                                "CONFIRMAÇÃO");
+                        if (confirmDialog.getResponse() == JOptionPane.YES_OPTION) {                              
+                            GeradorGUI geradorGUI = new GeradorGUI(
+                                    entidade,
+                                    atributos,
+                                    "screens",
+                                    txtPath.getText(),
+                                    autor,
+                                    entidade);
+                            
+                            salvarEntidadeGerada();
+                            messageDialog = new BuildMessageDialog(
+                                    DialogMessageType.INFO,
+                                    "Sus Interface foi gerada com sucesso",
+                                    "GERAÇÃO CONCLUÍDA",
+                                    cp);
+                            atributos.clear();
+                            txtEnt.setEnabled(true);
+                            txtAutor.setEnabled(true);
+                            txtEnt.setText("");
+                            txtAutor.setText("");
+                            txtVar.setText("");
+                            combTypeSelect.setSelectedIndex(0);
+                            spnFieldSize.setValue(10);
+
+                            buttonInitialConfigurations();
+                        }
+                    }
+                } catch (Exception excep) {
+                    errorTools.showExceptionStackTrace(excep);
+                    messageDialog = new BuildMessageDialog(
+                            DialogMessageType.ERROR,
+                            excep.getMessage(),
+                            "FALHA AO GERAR",
+                            cp);
+                }
+            }
+        });
+
         btnVisualizarVariaveis.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -451,6 +633,43 @@ public class ScreenGerador extends JFrame {
                 varTableScreen = new VarTableScreen(atributos);
             }
         });
+
+        btnCarregarEntidade.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    if (txtEnt.getText().trim().isEmpty()) {
+                        throw new Exception("Defina a Entidade!");
+                    } else {
+                        String entidade = capitalize.capitalizeVarUpper(capitalize.removerAcentos(txtEnt.getText()));
+                        String nomeArquivo = "src\\entidades_geradas\\" + entidade.trim();
+                        atributos = fileManager.buscarDadosEmArquivoTxt(nomeArquivo);
+                        if (atributos.isEmpty()) {
+                            atributos.clear();
+                            btnVisualizarVariaveis.setEnabled(false);                            
+                            throw new Exception("Entidade não encontrada!");
+                        } else {
+                            btnVisualizarVariaveis.setEnabled(true);
+                            messageDialog = new BuildMessageDialog(
+                                    DialogMessageType.SUCESS,
+                                    "Entidade encontrada e carregada!",
+                                    "BUSCA REALIZADA",
+                                    cp);
+                        }
+
+                    }
+                } catch (Exception excep) {
+                    errorTools.showExceptionStackTrace(excep);
+                    messageDialog = new BuildMessageDialog(
+                            DialogMessageType.ERROR,
+                            excep.getMessage(),
+                            "FALHA AO ABRIR",
+                            cp);
+                }
+
+            }
+        });
+        
 
         pack();
 
@@ -464,18 +683,48 @@ public class ScreenGerador extends JFrame {
 
     }
     
+    private void buttonInitialConfigurations() {
+        btnInit.setEnabled(true);
+        btnAdd.setEnabled(false);
+        btnCancel.setEnabled(false);
+        btnGerar.setEnabled(false);
+        btnVisualizarVariaveis.setEnabled(false);
+        btnGerarEntidade.setEnabled(false);
+        btnGerarController.setEnabled(false);
+        btnGerarGUI.setEnabled(false);
+    }
+
     private void verifyPath() {
         if (!manipulaArquivo.existeOArquivo("LastPath.txt")) {
             manipulaArquivo.criarArquivoVazio("LastPath.txt");
         }
-        
+
         lastPath = manipulaArquivo.abrirArquivo("LastPath.txt");
         if (!lastPath.isEmpty()) {
             destinyPath = lastPath.get(0);
         } else {
-            destinyPath = defaultPath;            
+            destinyPath = defaultPath;
         }
         txtPath.setText(destinyPath);
+    }
+    
+    private void salvarEntidadeGerada() {
+        try {
+            if (txtEnt.getText().trim().isEmpty() || atributos.isEmpty()) {
+                throw new Exception("Campo Entidade ou variáveis não cadastradas!");
+            } else {
+                String entidade = capitalize.capitalizeVarUpper(capitalize.removerAcentos(txtEnt.getText()));
+                String nomeArquivo = "src\\entidades_geradas\\" + entidade.trim();
+                fileManager.armazenarDadosEmArquivoTxt(atributos, nomeArquivo);
+            }
+        } catch (Exception excep) {
+            errorTools.showExceptionStackTrace(excep);
+                    messageDialog = new BuildMessageDialog(
+                            DialogMessageType.ERROR,
+                            excep.getMessage(),
+                            "FALHA AO ABRIR",
+                            cp);
+        }
     }
 
 }
