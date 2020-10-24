@@ -1,0 +1,8 @@
+int;iD;10
+String;nome;15
+String;tipagem;15
+String;paradigma;15
+long;anoCriacao;10
+String;versaoAtual;10
+String;criador;20
+String;foto;10
