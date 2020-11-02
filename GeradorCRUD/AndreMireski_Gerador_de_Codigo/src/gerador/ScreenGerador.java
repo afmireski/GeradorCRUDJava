@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package gerador;
 
 import enums.DialogConfirmType;
@@ -31,8 +26,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
+import model.ModelGerador;
 import tools.CaixaDeFerramentas;
 import tools.Tools;
 
@@ -62,7 +62,9 @@ public class ScreenGerador extends JFrame {
     JPanel panSouth = new JPanel();
     JPanel panEast = new JPanel();
     JPanel panWest = new JPanel();
-    JPanel panBody = new JPanel();
+    JPanel panCenter = new JPanel();
+    JPanel panBody = new JPanel(new GridLayout(4, 2));
+    JPanel panBodyTable = new JPanel(new GridLayout(1, 1));
 
 //NORTH PANELS
     JPanel panNort1 = new JPanel();
@@ -78,6 +80,11 @@ public class ScreenGerador extends JFrame {
     JPanel panL3C2 = new JPanel(); //Painel referente a posição da grade: Linha 3 - Coluna 2
     JPanel panL4C1 = new JPanel(); //Painel referente a posição da grade: Linha 3 - Coluna 1
     JPanel panL4C2 = new JPanel(); //Painel referente a posição da grade: Linha 3 - Coluna 2
+
+    //INSTANCIA DA TABELA
+    ModelGerador modelGerador = new ModelGerador();
+    JTable jtable = new JTable(modelGerador);
+    private JScrollPane scroll = new JScrollPane();
 
     //INSTANCIA DOS BUTTONS
     JButton btnInit = new JButton("Init");
@@ -135,7 +142,7 @@ public class ScreenGerador extends JFrame {
         cp.add(panSouth, BorderLayout.SOUTH);
         cp.add(panEast, BorderLayout.EAST);
         cp.add(panWest, BorderLayout.WEST);
-        cp.add(panBody, BorderLayout.CENTER);
+        cp.add(panCenter, BorderLayout.CENTER);
 
         //PAN NORTH CONFIGURATIONS
         panNorth.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -160,9 +167,11 @@ public class ScreenGerador extends JFrame {
         //PAN SOUTH CONFIGURATIONS
         panSouth.add(btnGerar);
 
-        //PAN BODY CONFIGURATIONS
-        panBody.setBorder(BorderFactory.createLineBorder(Color.black, 5));
-        panBody.setLayout(new GridLayout(4, 2));
+        //PAN CENTER CONFIGURATIONS
+        panCenter.setBorder(BorderFactory.createLineBorder(Color.black, 5));
+        panCenter.setLayout(new GridLayout(2, 1));
+        panCenter.add(panBody);
+        panCenter.add(panBodyTable);
 
         //Prenchimento por Linha
         panBody.add(panL1C1);
@@ -173,6 +182,18 @@ public class ScreenGerador extends JFrame {
         panBody.add(panL3C2);
         panBody.add(panL4C1);
         panBody.add(panL4C2);
+
+        //Configuração/Prenchimento da tabela
+        jtable.getColumnModel().getColumn(0).setPreferredWidth(70);
+        jtable.getColumnModel().getColumn(1).setPreferredWidth(20);
+        jtable.getColumnModel().getColumn(2).setPreferredWidth(10);
+        jtable.setRowHeight(20);
+        scroll.setPreferredSize(jtable.getPreferredSize());
+        scroll.setViewportView(jtable);
+        LineBorder lineBorder = new LineBorder(Color.BLACK);
+        TitledBorder titledBorder = BorderFactory.createTitledBorder(lineBorder, "Atributos", TitledBorder.CENTER, TitledBorder.DEFAULT_JUSTIFICATION);
+        scroll.setBorder(titledBorder);
+        panBodyTable.add(scroll);
 
         //Prenchimento Linha 1
         panL1C1.add(lblTipo);
@@ -256,6 +277,7 @@ public class ScreenGerador extends JFrame {
                         String atributo = type + ";" + var + ";" + size;
                         System.out.println("Atributo -> " + atributo);
                         atributos.add(atributo);
+                        modelGerador.addModel(var, type, size);
                         txtVar.setText("");
                         spnFieldSize.setValue(10);
                         combTypeSelect.requestFocus();

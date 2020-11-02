@@ -1,0 +1,2 @@
+model.Atributos
+model.ModelGerador
