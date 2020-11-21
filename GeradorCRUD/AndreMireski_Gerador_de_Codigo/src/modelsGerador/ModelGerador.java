@@ -6,11 +6,11 @@ import javax.swing.table.AbstractTableModel;
 
 public class ModelGerador extends AbstractTableModel {
 
-    private List<Atributos> lista;
+    private List<Atributo> lista;
     private String[] colunas = new String[]{"Nome", "Tipo","Tamanho"};
 
     public ModelGerador() {
-        this.lista = new ArrayList<Atributos>();
+        this.lista = new ArrayList<Atributo>();
     }
 
     public String getColumnName(int columnIndex) {
@@ -29,7 +29,7 @@ public class ModelGerador extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int colunmIndex) {
-        Atributos AtributoSelecionado = lista.get(rowIndex);
+        Atributo AtributoSelecionado = lista.get(rowIndex);
         String a = null;
         switch (colunmIndex) {
             case 0:
@@ -55,7 +55,7 @@ public class ModelGerador extends AbstractTableModel {
     }
     
     public void addModel(String name, String type, String size){
-        Atributos atributo = new Atributos();
+        Atributo atributo = new Atributo();
         atributo.setName(name);
         atributo.setType(type);
         atributo.setSize(size);
@@ -65,41 +65,9 @@ public class ModelGerador extends AbstractTableModel {
         fireTableRowsInserted(ultimoIndice, ultimoIndice);
     }
 
-    public List<Atributos> getLista() {
-        return new ArrayList<Atributos>(lista);
+    public List<Atributo> getLista() {
+        return new ArrayList<Atributo>(lista);
     }
 
 }
 
-class Atributos {
-    private String name;
-    private String type;
-    private String size;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getSize() {
-        return size;
-    }
-
-    public void setSize(String size) {
-        this.size = size;
-    }
-    
-    
-    
-}

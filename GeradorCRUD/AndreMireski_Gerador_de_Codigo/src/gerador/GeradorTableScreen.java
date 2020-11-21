@@ -3,6 +3,7 @@ package gerador;
 import helpers.Capitalize;
 import java.util.ArrayList;
 import java.util.List;
+import modelsGerador.Atributo;
 import tools.ManipulaArquivo;
 
 /*
@@ -19,13 +20,13 @@ public class GeradorTableScreen {
     private final Capitalize capitalize = new Capitalize();
 
     private final String nomeClasse;
-    private final List<String> atributos;
+    private final List<Atributo> atributos;
     private final String destinyPackage;
     private final String destinyPath;
     private final String autor;
     private final String entidade;
 
-    public GeradorTableScreen(String nomeClasse, List<String> atributos, String destinyPackage, String destinyPath, String autor, String entidade) {
+    public GeradorTableScreen(String nomeClasse, List<Atributo> atributos, String destinyPackage, String destinyPath, String autor, String entidade) {
         this.nomeClasse = nomeClasse + "TableScreen";
         this.atributos = atributos;
         this.destinyPackage = destinyPackage;
@@ -89,9 +90,8 @@ public class GeradorTableScreen {
         codigoGerado.add("//TABELA");
         String colunas = "";
         String aux[];
-        for (String atributo : atributos) {
-            aux = atributo.split(";");
-            colunas += "\"" + aux[1].toUpperCase() + "\", ";
+        for (Atributo atributo : atributos) {
+            colunas += "\"" + atributo.getName().toUpperCase() + "\", ";
         }
         colunas = colunas.substring(0, colunas.length() - 2);
         codigoGerado.add("String colunas[] = new String[]{" + colunas + "};");

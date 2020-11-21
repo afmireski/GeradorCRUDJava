@@ -1,3 +1,0 @@
-int;pk;10
-String;nome;15
-double;varDouble;13

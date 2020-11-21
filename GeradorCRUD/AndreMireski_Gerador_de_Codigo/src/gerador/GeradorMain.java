@@ -8,6 +8,7 @@ package gerador;
 import helpers.Capitalize;
 import java.util.ArrayList;
 import java.util.List;
+import modelsGerador.Atributo;
 import tools.ManipulaArquivo;
 
 /**
@@ -19,7 +20,7 @@ public class GeradorMain {
     private final Capitalize capitalize = new Capitalize();
 
     private final String nomeClasse;
-    private final List<String> atributos;
+    private final List<Atributo> atributos;
     private final String destinyPackage;
     private final String destinyPath;
     private final String autor;
@@ -27,7 +28,7 @@ public class GeradorMain {
 
     private final List<String> codigoGerado = new ArrayList();
 
-    public GeradorMain(String nomeClasse, List<String> atributos, String destinyPackage, String destinyPath, String autor, String entidade) {
+    public GeradorMain(String nomeClasse, List<Atributo> atributos, String destinyPackage, String destinyPath, String autor, String entidade) {
         this.nomeClasse = nomeClasse;
         this.atributos = atributos;
         this.destinyPackage = destinyPackage;

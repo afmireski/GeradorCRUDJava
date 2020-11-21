@@ -8,6 +8,7 @@ package gerador;
 import helpers.Capitalize;
 import java.util.ArrayList;
 import java.util.List;
+import modelsGerador.Atributo;
 import tools.ManipulaArquivo;
 
 /**
@@ -19,13 +20,13 @@ public class GeradorGUI {
     private final Capitalize capitalize = new Capitalize();
 
     private final String nomeClasse;
-    private final List<String> atributos;
+    private final List<Atributo> atributos;
     private final String destinyPackage;
     private final String destinyPath;
     private final String autor;
     private final String entidade;;
 
-    public GeradorGUI(String nomeClasse, List<String> atributos, String destinyPackage, String destinyPath, String autor, String entidade) {
+    public GeradorGUI(String nomeClasse, List<Atributo> atributos, String destinyPackage, String destinyPath, String autor, String entidade) {
         this.nomeClasse = nomeClasse + "Screen";
         this.atributos = atributos;
         this.destinyPackage = destinyPackage;
@@ -35,7 +36,7 @@ public class GeradorGUI {
         gerar();
     }
 
-    private String pk[];
+    private Atributo pk;
     private final List<String> codigoGerado = new ArrayList();
 
     private void gerar() {
@@ -176,19 +177,16 @@ public class GeradorGUI {
     private void gerarLabels() {
         codigoGerado.add("\n//INSTANCIA DOS LABELS");
         String aux[];
-        for (String atributo : atributos) {
-            aux = atributo.split(";");
-            codigoGerado.add("JLabel lbl" + capitalize.capitalizeTextUpper(aux[1]) + " = new JLabel(\"" + aux[1].toUpperCase() + "\");");
+        for (Atributo atributo : atributos) {
+            codigoGerado.add("JLabel lbl" + capitalize.capitalizeTextUpper(atributo.getName()) + " = new JLabel(\"" + atributo.getName().toUpperCase() + "\");");
         }
     }
 
     private void gerarTextFields() {
         codigoGerado.add("\n//INSTANCIA DOS TEXTFIELD");
-        String aux[];
-        pk = atributos.get(0).split(";");
-        for (String atributo : atributos) {
-            aux = atributo.split(";");
-            codigoGerado.add("JTextField txt" + capitalize.capitalizeTextUpper(aux[1]) + " = new JTextField(" + aux[2] + ");");
+        pk = atributos.get(0);
+        for (Atributo atributo : atributos) {
+            codigoGerado.add("JTextField txt" + capitalize.capitalizeTextUpper(atributo.getName()) + " = new JTextField(" + atributo.getSize() + ");");
         }
     }
 
@@ -251,15 +249,13 @@ public class GeradorGUI {
     private void gerarTxtInitialConfigurations() {
         codigoGerado.add("\t//TEXTFIELD INITIAL CONFIGURATIONS");
         String bool = "";
-        String aux[];
-        for (String atributo : atributos) {
-            aux = atributo.split(";");
+        for (Atributo atributo : atributos) {
             if (atributo.equals(atributos.get(0))) {
                 bool = "true";
             } else {
                 bool = "false";
             }
-            codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(aux[1]) + ".setEnabled(" + bool + ");");
+            codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".setEnabled(" + bool + ");");
         }
     }
 
@@ -277,8 +273,8 @@ public class GeradorGUI {
     private void gerarPanNorthConfigurations() {
         codigoGerado.add("\n\t//PAN NORTH CONFIGURATIONS\n"
                 + "        panNorth.setLayout(new FlowLayout(FlowLayout.LEFT));\n"
-                + "        panNorth.add(lbl" + capitalize.capitalizeTextUpper(pk[1]) + ");\n"
-                + "        panNorth.add(txt" + capitalize.capitalizeTextUpper(pk[1]) + ");\n"
+                + "        panNorth.add(lbl" + capitalize.capitalizeTextUpper(pk.getName()) + ");\n"
+                + "        panNorth.add(txt" + capitalize.capitalizeTextUpper(pk.getName()) + ");\n"
                 + "\n"
                 + "        panNorth.add(btnRetrieve);\n"
                 + "        panNorth.add(btnCreate);\n"
@@ -310,10 +306,10 @@ public class GeradorGUI {
     private void gerarConfiguracaoLinhaX() {
         for (int i = 1; i < atributos.size(); i++) {
             int l = i;
-            String atributo = capitalize.capitalizeTextUpper(atributos.get(i).split(";")[1]);
+            String atributoName = capitalize.capitalizeTextUpper(atributos.get(i).getName());
             codigoGerado.add("\n\t//Prenchimento Linha " + l);
-            codigoGerado.add("\tpanL" + l + "C1.add(lbl" + atributo + ");");
-            codigoGerado.add("\tpanL" + l + "C2.add(txt" + atributo + ");");
+            codigoGerado.add("\tpanL" + l + "C1.add(lbl" + atributoName + ");");
+            codigoGerado.add("\tpanL" + l + "C2.add(txt" + atributoName + ");");
         }
         int last = atributos.size();
         codigoGerado.add("\n\t//Prenchimento Linha " + last);
@@ -326,17 +322,17 @@ public class GeradorGUI {
                 + "            @Override\n"
                 + "            public void actionPerformed(ActionEvent e) {");
         codigoGerado.add("try {\n"
-                + "                    if (!txt" + capitalize.capitalizeTextUpper(pk[1]) + ".getText().trim().isEmpty()) {");
+                + "                    if (!txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".getText().trim().isEmpty()) {");
         codigoGerado.add(capitalize.capitalizeTextLower(entidade) + " = " + capitalize.capitalizeTextLower(entidade) + "Controller.retrieve("
-                + gerarValueOf("txt" + capitalize.capitalizeTextUpper(pk[1] + ".getText()")) + ");");
+                + gerarValueOf("txt" + capitalize.capitalizeTextUpper(pk.getName() + ".getText()")) + ");");
         codigoGerado.add("if (" + capitalize.capitalizeTextLower(entidade) + "!= null){btnCreate.setEnabled(false);\n"
                 + "                            btnCreate.setVisible(true);\n"
                 + "                            btnUpdate.setEnabled(true);\n"
                 + "                            btnUpdate.setVisible(true);\n"
                 + "                            btnDelete.setEnabled(true);\n");        
         for (int i = 1; i < atributos.size(); i++) {
-            String aux[] = atributos.get(i).split(";");
-            codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(aux[1]) + ".setEnabled(false);");
+            Atributo atributo = atributos.get(i);
+            codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".setEnabled(false);");
         }
         codigoGerado.add("");
         gerarSetters();
@@ -365,8 +361,8 @@ public class GeradorGUI {
                 + "                btnCreate.setVisible(false);\n"
                 + "                btnCancel.setVisible(true);\n"
                 + "                btnAction.setVisible(true);\n");
-        codigoGerado.add("txt" + capitalize.capitalizeTextUpper(pk[1]) + ".setEnabled(false);");
-        codigoGerado.add("txt" + capitalize.capitalizeTextUpper(atributos.get(1).split(";")[1]) + ".requestFocus();");
+        codigoGerado.add("txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".setEnabled(false);");
+        codigoGerado.add("txt" + capitalize.capitalizeTextUpper(atributos.get(1).getName()) + ".requestFocus();");
         codigoGerado.add("\n"
                 + "                actionController = \"CREATE\";\n"
                 + "\n"
@@ -386,9 +382,9 @@ public class GeradorGUI {
                 + "                btnCreate.setVisible(false);\n"
                 + "                btnCancel.setVisible(true);\n"
                 + "                btnAction.setVisible(true);\n");
-        codigoGerado.add("txt" + capitalize.capitalizeTextUpper(pk[1]) + ".setEnabled(false);");
+        codigoGerado.add("txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".setEnabled(false);");
         gerarSetEnableTxt(true);
-        codigoGerado.add("txt" + capitalize.capitalizeTextUpper(atributos.get(1).split(";")[1]) + ".requestFocus();");
+        codigoGerado.add("txt" + capitalize.capitalizeTextUpper(atributos.get(1).getName()) + ".requestFocus();");
         codigoGerado.add("\n"
                 + "                actionController = \"UPDATE\";\n"
                 + "\n"
@@ -434,9 +430,9 @@ public class GeradorGUI {
                 + "");
 
         codigoGerado.add("\n"
-                + "                        txt" + capitalize.capitalizeTextUpper(pk[1]) + ".setEnabled(true);\n"
-                + "                        txt" + capitalize.capitalizeTextUpper(pk[1]) + ".setText(\"\");\n"
-                + "                        txt" + capitalize.capitalizeTextUpper(pk[1]) + ".requestFocus();\n"
+                + "                        txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".setEnabled(true);\n"
+                + "                        txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".setText(\"\");\n"
+                + "                        txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".requestFocus();\n"
                 + "");
         gerarSetEnableTxt(false);
         gerarSetText("\"\"");
@@ -470,9 +466,9 @@ public class GeradorGUI {
                 + "                    btnRetrieve.setEnabled(true);\n"
                 + "");
         codigoGerado.add("\n"
-                + "                        txt" + capitalize.capitalizeTextUpper(pk[1]) + ".setEnabled(true);\n"
-                + "                        txt" + capitalize.capitalizeTextUpper(pk[1]) + ".setText(\"\");\n"
-                + "                        txt" + capitalize.capitalizeTextUpper(pk[1]) + ".requestFocus();\n"
+                + "                        txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".setEnabled(true);\n"
+                + "                        txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".setText(\"\");\n"
+                + "                        txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".requestFocus();\n"
                 + "");
         gerarSetEnableTxt(false);
         gerarSetText("\"\"");
@@ -517,8 +513,8 @@ public class GeradorGUI {
         gerarButtonsInitialConfiguration();
         gerarTxtInitialConfigurations();
         codigoGerado.add("\n"
-                + "                        txt" + capitalize.capitalizeTextUpper(pk[1]) + ".setText(\"\");\n"
-                + "                        txt" + capitalize.capitalizeTextUpper(pk[1]) + ".requestFocus();\n"
+                + "                        txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".setText(\"\");\n"
+                + "                        txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".requestFocus();\n"
                 + "");
         gerarSetText("\"\"");
         codigoGerado.add("");
@@ -550,46 +546,39 @@ public class GeradorGUI {
     }
 
     private void gerarSetters() {
-        String aux[];
-        for (String atributo : atributos) {
-            aux = atributo.split(";");
-            codigoGerado.add("txt" + capitalize.capitalizeTextUpper(aux[1])
+        for (Atributo atributo : atributos) {
+            codigoGerado.add("txt" + capitalize.capitalizeTextUpper(atributo.getName())
                     + ".setText(String.valueOf(" + capitalize.capitalizeTextLower(entidade)
-                    + ".get" + capitalize.capitalizeTextUpper(aux[1]) + "()));");
+                    + ".get" + capitalize.capitalizeTextUpper(atributo.getName()) + "()));");
         }
     }
 
     private void gerarSetterEntidade() {
-        String aux[];
-        for (String atributo : atributos) {
-            aux = atributo.split(";");
-            codigoGerado.add(capitalize.capitalizeTextLower(entidade) + ".set" + capitalize.capitalizeTextUpper(aux[1]) + "("
-                    + gerarValueOf("txt" + capitalize.capitalizeTextUpper(aux[1]) + ".getText()") + ");");
+        for (Atributo atributo : atributos) {
+            codigoGerado.add(capitalize.capitalizeTextLower(entidade) + ".set" + capitalize.capitalizeTextUpper(atributo.getName()) + "("
+                    + gerarValueOf("txt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".getText()") + ");");
         }
     }
 
     private void gerarSetEnableTxt(boolean enabled) {
-        String aux[];
         for (int i = 1; i < atributos.size(); i++) {
-            aux = atributos.get(i).split(";");
-            codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(aux[1]) + ".setEnabled(" + enabled + ");");
+            Atributo atributo = atributos.get(i);
+            codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".setEnabled(" + enabled + ");");
         }
     }
 
     private void gerarSetText(String content) {
-        String aux[];
         for (int i = 1; i < atributos.size(); i++) {
-            aux = atributos.get(i).split(";");
-            codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(aux[1]) + ".setText(" + content + ");");
+            Atributo atributo = atributos.get(i);
+            codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".setText(" + content + ");");
         }
     }
 
     private void gerarVerificarTxt() {
         String condicao = "";
-        String aux[];
         for (int i = 1; i < atributos.size(); i++) {
-            aux = atributos.get(i).split(";");
-            condicao += "txt" + capitalize.capitalizeTextUpper(aux[1]) + ".getText().trim().isEmpty()";
+            Atributo atributo = atributos.get(i);
+            condicao += "txt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".getText().trim().isEmpty()";
             if (i < atributos.size() - 1) {
                 condicao += " || ";
             }
@@ -616,11 +605,9 @@ public class GeradorGUI {
     }
 
     private String gerarValueOf(String campo) {
-        String aux[];
-        for (String atributo : atributos) {
-            aux = atributo.split(";");
-            if (campo.toLowerCase().contains(aux[1].toLowerCase())) {
-                switch (aux[0].trim()) {
+        for (Atributo atributo : atributos) {
+            if (campo.toLowerCase().contains(atributo.getName().toLowerCase())) {
+                switch (atributo.getType().trim()) {
                     case "byte":
                         return "Byte.valueOf("+ campo +")";
                     case "short":

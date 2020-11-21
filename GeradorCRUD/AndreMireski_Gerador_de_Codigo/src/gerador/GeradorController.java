@@ -8,6 +8,7 @@ package gerador;
 import helpers.Capitalize;
 import java.util.ArrayList;
 import java.util.List;
+import modelsGerador.Atributo;
 import tools.ManipulaArquivo;
 
 /**
@@ -19,7 +20,7 @@ public class GeradorController {
     private final Capitalize capitalize = new Capitalize();
 
     private final String nomeClasse;
-    private final List<String> atributos;
+    private final List<Atributo> atributos;
     private final String destinyPackage;
     private final String destinyPath;
     private final String autor;
@@ -27,7 +28,7 @@ public class GeradorController {
 
     private final List<String> codigoGerado = new ArrayList();
 
-    public GeradorController(String nomeClasse, List<String> atributos,
+    public GeradorController(String nomeClasse, List<Atributo> atributos,
             String destinyPackage, String destinyPath, String autor, String entidade) {
         this.nomeClasse = nomeClasse + "Controller";
         this.atributos = atributos;
@@ -89,11 +90,11 @@ public class GeradorController {
         codigoGerado.add("public List<" + entidade + "> listar() {\n"
                 + "        return list;\n"
                 + "    }");
-        String pk[] = atributos.get(0).split(";");
-        codigoGerado.add("public " + entidade + " retrieve(" + pk[0] + " " + pk[1] + ") {\n"
+        Atributo pk = atributos.get(0);
+        codigoGerado.add("public " + entidade + " retrieve(" + pk.getType() + " " + pk.getName() + ") {\n"
                 + "        for (int i = 0; i < list.size(); i++) {\n"
-                + "            if (list.get(i).get" + capitalize.capitalizeTextUpper(pk[1]) + "()"
-                + verificacaoRetrieve(pk[0], pk[1]) + ") {\n"
+                + "            if (list.get(i).get" + capitalize.capitalizeTextUpper(pk.getName()) + "()"
+                + verificacaoRetrieve(pk.getType(), pk.getName()) + ") {\n"
                 + "                return list.get(i);\n"
                 + "            }\n"
                 + "        }\n"
@@ -160,42 +161,13 @@ public class GeradorController {
                 + "        }\n"
                 + "    }");
     }
-
-//    private String gerarNew() {
-//        String s = "";
-//        String aux[];
-//        for (int i = 0; i < atributos.size(); i++) {
-//            aux = atributos.get(i).split(";");
-//            if (aux[0].trim().equals("String")) {
-//                s += "aux[" + i + "]";
-//            } else if (aux[0].trim().equalsIgnoreCase("int")) {
-//                s += "Integer.valueOf(aux[" + i + "])";
-//            } else if (aux[0].trim().equalsIgnoreCase("double")) {
-//                s += "Double.valueOf(aux[" + i + "])";
-//            } else if (aux[0].trim().equalsIgnoreCase("long")) {
-//                s += "Long.valueOf(aux[" + i + "])";
-//            } else if (aux[0].trim().equalsIgnoreCase("Date")) {
-//                s += "cf.converteDeStringParaDate(aux[" + i + "])";
-//            } else if (aux[0].trim().equalsIgnoreCase("enum")) {
-//                s += "convert.stringToENUM(aux[" + i + "])";
-//            } else {
-//                s += "aux[" + i + "]";
-//            }
-//            if (i < atributos.size() - 1) {
-//                s += ",";
-//            }
-//            s += " //" + aux[1] + "\n";
-//        }
-//        return s;
-//    }
     
     private String gerarNew() {
         String s = "";
-        String aux[];
         for (int i = 0; i < atributos.size(); i++) {
-            aux = atributos.get(i).split(";");
-            System.out.println("aux[0] -> " + aux[0]);
-                switch (aux[0]) {
+            Atributo atributo = atributos.get(i);
+            System.out.println("Atributo.type -> " + atributo.getType());
+                switch (atributo.getType()) {
                     case "byte":
                         s += "Byte.valueOf(aux[" + i + "] )";
                         break;
@@ -227,7 +199,7 @@ public class GeradorController {
             if (i < atributos.size() - 1) {
                 s += ",";
             }
-            s += " //" + aux[1] + "\n";
+            s += " //" + atributo.getName() + "\n";
         }
         return s;
     }

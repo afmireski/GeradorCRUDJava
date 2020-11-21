@@ -41,6 +41,7 @@ import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import modelsGerador.Atributo;
 import modelsGerador.ModelGerador;
 import tools.CaixaDeFerramentas;
 import tools.ManipulaArquivo;
@@ -145,7 +146,8 @@ public class ScreenGerador extends JFrame {
     List<String> typeList = Arrays.asList(types);
 
     //INSTANCIA DO LIST ATRIBUTOS;
-    List<String> atributos = new ArrayList<>();
+    List<String> variaveis = new ArrayList<>();
+    List<Atributo> atributos = new ArrayList<>();
 
     //INSTANCIA DOS CAMINHOS PADRÃO
     String caminhos[] = {"\\src\\models", "\\src\\screens", "\\src\\controllers",
@@ -353,9 +355,13 @@ public class ScreenGerador extends JFrame {
                         String type = combTypeSelect.getSelectedItem().toString();
                         String var = capitalize.capitalizeVarLower(capitalize.removerAcentos(txtVar.getText()));
                         String size = spnFieldSize.getValue().toString();
-                        String atributo = type + ";" + var + ";" + size;
-                        System.out.println("Atributo -> " + atributo);
+                        
+                        Atributo atributo = new Atributo(var, type, size);
+                        
+                        System.out.println("Atributo -> " + atributo.toString());
+                        
                         atributos.add(atributo);
+                        
                         modelGerador.addModel(var, type, size);
                         txtVar.setText("");
                         spnFieldSize.setValue(10);
@@ -734,15 +740,14 @@ public class ScreenGerador extends JFrame {
                     } else {
                         String entidade = capitalize.capitalizeVarUpper(capitalize.removerAcentos(txtEnt.getText()));
                         String nomeArquivo = "src\\entidades_geradas\\" + entidade.trim();
-                        atributos = fileManager.buscarDadosEmArquivoTxt(nomeArquivo);
+                        atributos = new Atributo().forListStringToList(fileManager.buscarDadosEmArquivoTxt(nomeArquivo));
                         if (atributos.isEmpty()) {
                             atributos.clear();
                             btnVisualizarVariaveis.setEnabled(false);                            
                             throw new Exception("Entidade não encontrada!");
                         } else {
-                            for (String var : atributos) {
-                                String aux[] = var.split(";");
-                                modelGerador.addModel(aux[0], aux[1], aux[2]);
+                            for (Atributo var : atributos) {
+                                modelGerador.addModel(var.getType(), var.getName(), var.getSize());
                                 
                             }
                             messageDialog = new BuildMessageDialog(
@@ -811,7 +816,8 @@ public class ScreenGerador extends JFrame {
             } else {
                 String entidade = capitalize.capitalizeVarUpper(capitalize.removerAcentos(txtEnt.getText()));
                 String nomeArquivo = "src\\entidades_geradas\\" + entidade.trim();
-                fileManager.armazenarDadosEmArquivoTxt(atributos, nomeArquivo);
+                Atributo atr = new Atributo();
+                fileManager.armazenarDadosEmArquivoTxt(atr.toListString(atributos), nomeArquivo);
             }
         } catch (Exception excep) {
             errorTools.showExceptionStackTrace(excep);

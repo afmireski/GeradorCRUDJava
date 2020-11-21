@@ -8,6 +8,7 @@ package gerador;
 import helpers.Capitalize;
 import java.util.ArrayList;
 import java.util.List;
+import modelsGerador.Atributo;
 import tools.ManipulaArquivo;
 
 /**
@@ -19,14 +20,14 @@ public class GeradorEntidade {
     private final Capitalize capitalize = new Capitalize();
 
     private final String nomeClasse;
-    private final List<String> atributos;
+    private final List<Atributo> atributos;
     private final String destinyPackage;
     private final String destinyPath;
     private final String autor;
 
     private final List<String> codigoGerado = new ArrayList();
 
-    public GeradorEntidade(String nomeClasse, List<String> atributos,
+    public GeradorEntidade(String nomeClasse, List<Atributo> atributos,
             String destinyPackage, String destinyPath, String autor) {
         this.nomeClasse = nomeClasse;
         this.atributos = atributos;
@@ -53,10 +54,8 @@ public class GeradorEntidade {
     }
 
     private void gerarAtributos() {
-        String aux[];
-        for (String atributo : atributos) {
-            aux = atributo.split(";");
-            codigoGerado.add("private " + aux[0] + " " + aux[1] + ";");
+        for (Atributo atributo : atributos) {
+            codigoGerado.add("private " + atributo.getType() + " " + atributo.getName() + ";");
         }
     }
 
@@ -64,31 +63,28 @@ public class GeradorEntidade {
         String aux[];
         String parametros = "";
         codigoGerado.add("\npublic " + nomeClasse + "() {\n}");
-        for (String var : atributos) {
-            aux = var.split(";");
-            parametros += aux[0] + " " + aux[1];
-            if (!var.equalsIgnoreCase(atributos.get(atributos.size() - 1))) {
+        for (Atributo atributo : atributos) {
+            parametros += atributo.getType() + " " + atributo.getName();
+            if (!atributo.equals(atributos.get(atributos.size() - 1))) {
                 parametros += ", ";
             }
         }
 
         codigoGerado.add("public " + nomeClasse + "(" + parametros + ") {");
-        for (String var : atributos) {
-            aux = var.split(";");
-            codigoGerado.add("this." + aux[1] + " = " + aux[1] + ";");
+        for (Atributo atributo : atributos) {
+            codigoGerado.add("this." + atributo.getName() + " = " + atributo.getName() + ";");
         }
         codigoGerado.add("}\n");
     }
 
     private void gerarGettersSetters() {
         String aux[];
-        for (String var : atributos) {
-            aux = var.split(";");
-            codigoGerado.add("public " + aux[0] + " get" + capitalize.capitalizeTextUpper(aux[1]) + "() {\n"
-                    + "        return " + aux[1] + ";\n"
+        for (Atributo atributo : atributos) {
+            codigoGerado.add("public " + atributo.getType() + " get" + capitalize.capitalizeTextUpper(atributo.getName()) + "() {\n"
+                    + "        return " + atributo.getName() + ";\n"
                     + "    }\n"
-                    + "public void set" + capitalize.capitalizeTextUpper(aux[1]) + "(" + aux[0] + " " + aux[1] + ") {\n"
-                    + "        this." + aux[1] + " = " + aux[1] + ";\n"
+                    + "public void set" + capitalize.capitalizeTextUpper(atributo.getName()) + "(" + atributo.getType() + " " + atributo.getName() + ") {\n"
+                    + "        this." + atributo.getName() + " = " + atributo.getName() + ";\n"
                     + "    }\n");
         }
     }
@@ -96,19 +92,18 @@ public class GeradorEntidade {
     private void gerarToFk() {
         codigoGerado.add("public String toFk() {\n"
                 + "        //GERA UMA STRING PARA SER USADA COMO FK\n");
-        String fk[] = atributos.get(0).split(";"); //PEGA A PK DA ENTIDADE
-        String atri[] = atributos.get(1).split(";"); //PEGA O PRIMEIRO ATRIBUTO DEPOIS DA PK       
-        String retorno = fk[1] + "+ \" - \" +" + atri[1];
+        Atributo fk = atributos.get(0); //PEGA A PK DA ENTIDADE
+        Atributo atri = atributos.get(1); //PEGA O PRIMEIRO ATRIBUTO DEPOIS DA PK       
+        String retorno = fk.getName() + "+ \" - \" +" + atri.getName();
         codigoGerado.add("return " + retorno + ";\n}");
     }
 
     private void gerarToString() {
-        String aux[];
         codigoGerado.add("@Override\n    public String toString() {");
         String retorno = "return ";
         for (int i = 0; i < atributos.size(); i++) {
-            aux = atributos.get(i).split(";");
-            retorno += aux[1];
+            Atributo atributo = atributos.get(i);
+            retorno += atributo.getName();
             if (i < atributos.size() - 1) {
                 retorno += " + \";\" + ";
             } else {
