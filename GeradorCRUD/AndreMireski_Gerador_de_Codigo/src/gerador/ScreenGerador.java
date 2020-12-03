@@ -118,7 +118,6 @@ public class ScreenGerador extends JFrame {
     JButton btnGerarController = new JButton("Gerar Controller");
     JButton btnGerarMain = new JButton("Gerar Main");
     JButton btnGerarGUI = new JButton("Gerar Interface");
-    JButton btnVisualizarVariaveis = new JButton("Visualizar Variáveis");
     JButton btnCarregarEntidade = new JButton("Abrir");
 
     //INSTANCIA DOS LABELS
@@ -279,8 +278,7 @@ public class ScreenGerador extends JFrame {
         panL3C1.add(lblSize);
         panL3C2.add(spnFieldSize);
 
-        //Prenchimento Linha 4        
-        panL4C1.add(btnVisualizarVariaveis);
+        //Prenchimento Linha 4
         panL4C2.add(btnAdd);
 
         btnInit.addActionListener(new ActionListener() {
@@ -366,9 +364,6 @@ public class ScreenGerador extends JFrame {
                         txtVar.setText("");
                         spnFieldSize.setValue(10);
                         combTypeSelect.requestFocus();
-                        if (!atributos.isEmpty()) {
-                            btnVisualizarVariaveis.setEnabled(true);
-                        }
                         if (!atributos.isEmpty() && atributos.size() > 1) {
                             btnGerar.setEnabled(true);
                             btnGerarEntidade.setEnabled(true);
@@ -468,10 +463,7 @@ public class ScreenGerador extends JFrame {
                             combTypeSelect.setSelectedIndex(0);
                             spnFieldSize.setValue(10);
 
-                            btnInit.setEnabled(true);
-                            btnCancel.setEnabled(false);
-                            btnAdd.setEnabled(false);
-                            btnGerar.setEnabled(false);
+                            buttonInitialConfigurations();
                         }
                     }
 
@@ -742,8 +734,7 @@ public class ScreenGerador extends JFrame {
                         String nomeArquivo = "src\\entidades_geradas\\" + entidade.trim();
                         atributos = new Atributo().forListStringToList(fileManager.buscarDadosEmArquivoTxt(nomeArquivo));
                         if (atributos.isEmpty()) {
-                            atributos.clear();
-                            btnVisualizarVariaveis.setEnabled(false);                            
+                            atributos.clear();                         
                             throw new Exception("Entidade não encontrada!");
                         } else {
                             for (Atributo var : atributos) {
@@ -788,7 +779,6 @@ public class ScreenGerador extends JFrame {
         btnAdd.setEnabled(false);
         btnCancel.setEnabled(false);
         btnGerar.setEnabled(false);
-        btnVisualizarVariaveis.setEnabled(false);
         btnGerarEntidade.setEnabled(false);
         btnGerarController.setEnabled(false);
         btnGerarMain.setEnabled(false);
