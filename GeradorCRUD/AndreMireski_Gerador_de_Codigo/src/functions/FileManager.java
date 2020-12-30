@@ -29,6 +29,15 @@ public class FileManager {
         }
     }
     
+    public void createSingleDirectory(String path, String pasta) {
+        ///MÉTODO PARA CRIAR UMA ÚNICA PASTA
+        String packagePath = path + pasta;
+            File pack = new File(packagePath);
+            if (!pack.exists()) {
+                new File(packagePath).mkdir(); //CRIA A PASTA
+            }
+    }
+    
     public void copyFiles(String destinyPath, String filesPath) {
         ///MÉTODO PARA COPIAR ARQUIVOS
         File dir = new File(filesPath);

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
-    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="5">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="7">
         <file>
             <url>src/screens/PessoaScreen.java</url>
             <bookmark id="5">
@@ -18,15 +18,30 @@
             </bookmark>
             <bookmark id="4">
                 <name/>
-                <line>205</line>
+                <line>204</line>
+                <key/>
+            </bookmark>
+        </file>
+        <file>
+            <url>src/gerador/GeradorGUI_Imagem.java</url>
+            <bookmark id="7">
+                <name/>
+                <line>39</line>
+                <key/>
+            </bookmark>
+            <bookmark id="6">
+                <name/>
+                <line>237</line>
                 <key/>
             </bookmark>
         </file>
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/AFMireski/Documents/GitHub/GerardorCRUDJava/GeradorCRUD/AndreMireski_Gerador_de_Codigo/src/main/Main.java</file>
+            <file>file:/C:/Users/AFMireski/Documents/GitHub/GerardorCRUDJava/GeradorCRUD/AndreMireski_Gerador_de_Codigo/src/gerador/GeradorGUI.java</file>
+            <file>file:/C:/Users/AFMireski/Documents/GitHub/GerardorCRUDJava/GeradorCRUD/AndreMireski_Gerador_de_Codigo/src/modelsGerador/Crud.java</file>
             <file>file:/C:/Users/AFMireski/Documents/GitHub/GerardorCRUDJava/GeradorCRUD/AndreMireski_Gerador_de_Codigo/src/gerador/ScreenGerador.java</file>
+            <file>file:/C:/Users/AFMireski/Documents/GitHub/GerardorCRUDJava/GeradorCRUD/AndreMireski_Gerador_de_Codigo/src/gerador/GeradorGUI_Imagem.java</file>
         </group>
     </open-files>
 </project-private>

@@ -55,7 +55,11 @@ public class GeradorEntidade {
 
     private void gerarAtributos() {
         for (Atributo atributo : atributos) {
-            codigoGerado.add("private " + atributo.getType() + " " + atributo.getName() + ";");
+            if (atributo.getType().equalsIgnoreCase("Image")) {                 
+                codigoGerado.add("private String " + atributo.getName() + ";");
+            } else {
+                codigoGerado.add("private " + atributo.getType() + " " + atributo.getName() + ";");
+            }
         }
     }
 
@@ -63,8 +67,13 @@ public class GeradorEntidade {
         String aux[];
         String parametros = "";
         codigoGerado.add("\npublic " + nomeClasse + "() {\n}");
-        for (Atributo atributo : atributos) {
-            parametros += atributo.getType() + " " + atributo.getName();
+        for (Atributo atributo : atributos) {            
+            if (atributo.getType().equalsIgnoreCase("Image")) {                 
+                parametros += "String" + " " + atributo.getName();
+            } else {
+                parametros += atributo.getType() + " " + atributo.getName();
+            }
+            
             if (!atributo.equals(atributos.get(atributos.size() - 1))) {
                 parametros += ", ";
             }
@@ -80,12 +89,22 @@ public class GeradorEntidade {
     private void gerarGettersSetters() {
         String aux[];
         for (Atributo atributo : atributos) {
-            codigoGerado.add("public " + atributo.getType() + " get" + capitalize.capitalizeTextUpper(atributo.getName()) + "() {\n"
+            if (atributo.getType().equalsIgnoreCase("Image")) {                 
+               codigoGerado.add("public String get" + capitalize.capitalizeTextUpper(atributo.getName()) + "() {\n"
+                    + "        return " + atributo.getName() + ";\n"
+                    + "    }\n"
+                    + "public void set" + capitalize.capitalizeTextUpper(atributo.getName()) + "(String " + atributo.getName() + ") {\n"
+                    + "        this." + atributo.getName() + " = " + atributo.getName() + ";\n"
+                    + "    }\n");
+            } else {
+                codigoGerado.add("public " + atributo.getType() + " get" + capitalize.capitalizeTextUpper(atributo.getName()) + "() {\n"
                     + "        return " + atributo.getName() + ";\n"
                     + "    }\n"
                     + "public void set" + capitalize.capitalizeTextUpper(atributo.getName()) + "(" + atributo.getType() + " " + atributo.getName() + ") {\n"
                     + "        this." + atributo.getName() + " = " + atributo.getName() + ";\n"
                     + "    }\n");
+            }
+            
         }
     }
 

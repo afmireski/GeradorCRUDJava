@@ -42,6 +42,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import modelsGerador.Atributo;
+import modelsGerador.Crud;
 import modelsGerador.ModelGerador;
 import tools.CaixaDeFerramentas;
 import tools.ManipulaArquivo;
@@ -80,7 +81,6 @@ public class ScreenGerador extends JFrame {
     JPanel panCenter = new JPanel();
     JPanel panBody = new JPanel(new GridLayout(4, 2));
     JPanel panBodyTable = new JPanel(new GridLayout(1, 1));
-    
 
 //NORTH PANELS
     //SUB NORTH PANELS    
@@ -102,11 +102,11 @@ public class ScreenGerador extends JFrame {
     JPanel panL4C1 = new JPanel(); //Painel referente a posição da grade: Linha 3 - Coluna 1
     JPanel panL4C2 = new JPanel(); //Painel referente a posição da grade: Linha 3 - Coluna 2
 
-     //INSTANCIA DA TABELA
+    //INSTANCIA DA TABELA
     ModelGerador modelGerador = new ModelGerador();
     JTable jtable = new JTable(modelGerador);
     private JScrollPane scroll = new JScrollPane();
-    
+
     //INSTANCIA DOS BUTTONS
     JButton btnInit = new JButton("Init");
     JButton btnAdd = new JButton("Adicionar");
@@ -141,10 +141,11 @@ public class ScreenGerador extends JFrame {
     JComboBox combTypeSelect;
 
     //INSTANCIA DOS TIPOS
-    String types[] = {"byte", "short", "int", "long", "float", "double", "String", "boolean", "Date"};
+    String types[] = {"byte", "short", "int", "long", "float", "double", "String", "boolean", "Date", "Image"};
     List<String> typeList = Arrays.asList(types);
 
     //INSTANCIA DO LIST ATRIBUTOS;
+    Crud crud = new Crud();
     List<String> variaveis = new ArrayList<>();
     List<Atributo> atributos = new ArrayList<>();
 
@@ -241,9 +242,8 @@ public class ScreenGerador extends JFrame {
         panCenter.setLayout(new GridLayout(2, 1));
         panCenter.add(panBody);
         panCenter.add(panBodyTable);
-        
-        //PAN BODY CONFIGURATIONS
 
+        //PAN BODY CONFIGURATIONS
         //Prenchimento por Linha
         panBody.add(panL1C1);
         panBody.add(panL1C2);
@@ -265,7 +265,7 @@ public class ScreenGerador extends JFrame {
         TitledBorder titledBorder = BorderFactory.createTitledBorder(lineBorder, "Atributos", TitledBorder.CENTER, TitledBorder.DEFAULT_JUSTIFICATION);
         scroll.setBorder(titledBorder);
         panBodyTable.add(scroll);
-        
+
         //Prenchimento Linha 1
         panL1C1.add(lblTipo);
         panL1C2.add(combTypeSelect);
@@ -291,7 +291,7 @@ public class ScreenGerador extends JFrame {
                         btnInit.setEnabled(false);
                         btnAdd.setEnabled(true);
                         btnCancel.setEnabled(true);
-                        
+
                         btnCarregarEntidade.setEnabled(false);
                         txtEnt.setEnabled(false);
                         txtAutor.setEnabled(false);
@@ -308,6 +308,8 @@ public class ScreenGerador extends JFrame {
                             btnGerarMain.setEnabled(true);
                             btnGerarGUI.setEnabled(true);
                         }
+                        crud.setEntidade(txtEnt.getText());
+                        crud.setAutor(txtAutor.getText());
                     }
                 } catch (Exception excep) {
                     errorTools.showExceptionStackTrace(excep);
@@ -326,7 +328,6 @@ public class ScreenGerador extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 //BUTTONS INITIAL CONFIGURATIONS
                 buttonInitialConfigurations();
-                
 
                 txtEnt.setEnabled(true);
                 txtAutor.setEnabled(true);
@@ -339,6 +340,7 @@ public class ScreenGerador extends JFrame {
 
                 txtEnt.requestFocus();
                 atributos.clear();
+                crud = new Crud();
                 modelGerador.clear();
             }
         });
@@ -353,13 +355,17 @@ public class ScreenGerador extends JFrame {
                         String type = combTypeSelect.getSelectedItem().toString();
                         String var = capitalize.capitalizeVarLower(capitalize.removerAcentos(txtVar.getText()));
                         String size = spnFieldSize.getValue().toString();
-                        
+
                         Atributo atributo = new Atributo(var, type, size);
-                        
+
                         System.out.println("Atributo -> " + atributo.toString());
-                        
+
                         atributos.add(atributo);
-                        
+                        crud.setAtributos(atributos);
+                        if (type.equalsIgnoreCase("Image")) {
+                            crud.setImageCrud(true);                            
+                        }
+
                         modelGerador.addModel(var, type, size);
                         txtVar.setText("");
                         spnFieldSize.setValue(10);
@@ -433,37 +439,37 @@ public class ScreenGerador extends JFrame {
                                     txtPath.getText(),
                                     autor,
                                     entidade);
-                            GeradorGUI geradorGUI = new GeradorGUI(
+                            if (crud.isImageCrud()) {
+                                fileManager.createSingleDirectory(destinyPath, "\\src\\images");
+                                GeradorGUI_Imagem geradorGUI_Imagem = new GeradorGUI_Imagem(
+                                        entidade,
+                                        "screens",
+                                        txtPath.getText(),
+                                        crud
+                                );
+                            } else {
+                                GeradorGUI geradorGUI = new GeradorGUI(
                                     entidade,
                                     atributos,
                                     "screens",
                                     txtPath.getText(),
                                     autor,
                                     entidade);
+                            }                            
                             GeradorMain geradorMain = new GeradorMain(entidade,
                                     atributos,
                                     "main",
                                     txtPath.getText(),
                                     autor,
-                                    entidade);  
-                            
+                                    entidade);
+
                             salvarEntidadeGerada();
                             messageDialog = new BuildMessageDialog(
                                     DialogMessageType.INFO,
                                     "Sua CRUD foi gerada com sucesso",
                                     "GERAÇÃO CONCLUÍDA",
                                     cp);
-                            atributos.clear();
-                            modelGerador.clear();
-                            txtEnt.setEnabled(true);
-                            txtAutor.setEnabled(true);
-                            txtEnt.setText("");
-                            txtAutor.setText("");
-                            txtVar.setText("");
-                            combTypeSelect.setSelectedIndex(0);
-                            spnFieldSize.setValue(10);
-
-                            buttonInitialConfigurations();
+                            setDefaultConfigurations();
                         }
                     }
 
@@ -500,7 +506,7 @@ public class ScreenGerador extends JFrame {
                 }
             }
         });
-        
+
         btnGerarEntidade.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -511,7 +517,7 @@ public class ScreenGerador extends JFrame {
                         throw new Exception("Adicione pelo menos 1 variável para prosseguir....");
                     } else {
                         String entidade = capitalize.capitalizeVarUpper(capitalize.removerAcentos(txtEnt.getText()));
-                        String autor = txtAutor.getText();  
+                        String autor = txtAutor.getText();
                         System.out.println("ENTIDADE -> " + entidade);
                         System.out.println("AUTOR -> " + autor);
                         confirmDialog = new BuildConfirmDialog(
@@ -521,28 +527,19 @@ public class ScreenGerador extends JFrame {
                         if (confirmDialog.getResponse() == JOptionPane.YES_OPTION) {
                             GeradorEntidade geradorEntidade = new GeradorEntidade(
                                     entidade,
-                                    atributos,                                    
+                                    atributos,
                                     "models",
                                     txtPath.getText(),
-                                    autor);                         
-                            
+                                    autor);
+
                             salvarEntidadeGerada();
                             messageDialog = new BuildMessageDialog(
                                     DialogMessageType.INFO,
                                     "Sua Entidade foi gerada com sucesso",
                                     "GERAÇÃO CONCLUÍDA",
                                     cp);
-                            atributos.clear();
-                            modelGerador.clear();
-                            txtEnt.setEnabled(true);
-                            txtAutor.setEnabled(true);
-                            txtEnt.setText("");
-                            txtAutor.setText("");
-                            txtVar.setText("");
-                            combTypeSelect.setSelectedIndex(0);
-                            spnFieldSize.setValue(10);
-
-                            buttonInitialConfigurations();
+                            
+                            setDefaultConfigurations();
                         }
                     }
                 } catch (Exception excep) {
@@ -555,7 +552,7 @@ public class ScreenGerador extends JFrame {
                 }
             }
         });
-        
+
         btnGerarController.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -566,39 +563,30 @@ public class ScreenGerador extends JFrame {
                         throw new Exception("Adicione pelo menos 1 variável para prosseguir....");
                     } else {
                         String entidade = capitalize.capitalizeVarUpper(capitalize.removerAcentos(txtEnt.getText()));
-                        String autor = txtAutor.getText();  
+                        String autor = txtAutor.getText();
                         System.out.println("ENTIDADE -> " + entidade);
                         System.out.println("AUTOR -> " + autor);
                         confirmDialog = new BuildConfirmDialog(
                                 DialogConfirmType.YES_NO,
                                 "Deseja realmente gerar um Controller?",
                                 "CONFIRMAÇÃO");
-                        if (confirmDialog.getResponse() == JOptionPane.YES_OPTION) {                              
+                        if (confirmDialog.getResponse() == JOptionPane.YES_OPTION) {
                             GeradorController geradorController = new GeradorController(
                                     entidade,
                                     atributos,
                                     "controllers",
                                     txtPath.getText(),
                                     autor,
-                                    entidade);  
-                            
+                                    entidade);
+
                             salvarEntidadeGerada();
                             messageDialog = new BuildMessageDialog(
                                     DialogMessageType.INFO,
                                     "Seu Controller foi gerada com sucesso",
                                     "GERAÇÃO CONCLUÍDA",
                                     cp);
-                            atributos.clear();
-                            modelGerador.clear();
-                            txtEnt.setEnabled(true);
-                            txtAutor.setEnabled(true);
-                            txtEnt.setText("");
-                            txtAutor.setText("");
-                            txtVar.setText("");
-                            combTypeSelect.setSelectedIndex(0);
-                            spnFieldSize.setValue(10);
-
-                            buttonInitialConfigurations();
+                            
+                            setDefaultConfigurations();
                         }
                     }
                 } catch (Exception excep) {
@@ -611,7 +599,7 @@ public class ScreenGerador extends JFrame {
                 }
             }
         });
-        
+
         btnGerarMain.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -622,38 +610,29 @@ public class ScreenGerador extends JFrame {
                         throw new Exception("Adicione pelo menos 1 variável para prosseguir....");
                     } else {
                         String entidade = capitalize.capitalizeVarUpper(capitalize.removerAcentos(txtEnt.getText()));
-                        String autor = txtAutor.getText();  
+                        String autor = txtAutor.getText();
                         System.out.println("ENTIDADE -> " + entidade);
                         System.out.println("AUTOR -> " + autor);
                         confirmDialog = new BuildConfirmDialog(
                                 DialogConfirmType.YES_NO,
                                 "Deseja realmente gerar uma Classe Main?",
                                 "CONFIRMAÇÃO");
-                        if (confirmDialog.getResponse() == JOptionPane.YES_OPTION) { 
+                        if (confirmDialog.getResponse() == JOptionPane.YES_OPTION) {
                             GeradorMain geradorMain = new GeradorMain(entidade,
                                     atributos,
                                     "main",
                                     txtPath.getText(),
                                     autor,
-                                    entidade);                            
-                            
+                                    entidade);
+
                             salvarEntidadeGerada();
                             messageDialog = new BuildMessageDialog(
                                     DialogMessageType.INFO,
                                     "Sua Classe Main foi gerada com sucesso!",
                                     "GERAÇÃO CONCLUÍDA",
                                     cp);
-                            atributos.clear();
-                            modelGerador.clear();
-                            txtEnt.setEnabled(true);
-                            txtAutor.setEnabled(true);
-                            txtEnt.setText("");
-                            txtAutor.setText("");
-                            txtVar.setText("");
-                            combTypeSelect.setSelectedIndex(0);
-                            spnFieldSize.setValue(10);
-
-                            buttonInitialConfigurations();
+                            
+                            setDefaultConfigurations();
                         }
                     }
                 } catch (Exception excep) {
@@ -666,7 +645,7 @@ public class ScreenGerador extends JFrame {
                 }
             }
         });
-        
+
         btnGerarGUI.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -677,39 +656,40 @@ public class ScreenGerador extends JFrame {
                         throw new Exception("Adicione pelo menos 1 variável para prosseguir....");
                     } else {
                         String entidade = capitalize.capitalizeVarUpper(capitalize.removerAcentos(txtEnt.getText()));
-                        String autor = txtAutor.getText();  
+                        String autor = txtAutor.getText();
                         System.out.println("ENTIDADE -> " + entidade);
                         System.out.println("AUTOR -> " + autor);
                         confirmDialog = new BuildConfirmDialog(
                                 DialogConfirmType.YES_NO,
                                 "Deseja realmente gerar uma Interface?",
                                 "CONFIRMAÇÃO");
-                        if (confirmDialog.getResponse() == JOptionPane.YES_OPTION) {                              
-                            GeradorGUI geradorGUI = new GeradorGUI(
+                        if (confirmDialog.getResponse() == JOptionPane.YES_OPTION) {
+                            if (crud.isImageCrud()) {
+                                fileManager.createSingleDirectory(destinyPath, "\\src\\images");
+                                GeradorGUI_Imagem geradorGUI_Imagem = new GeradorGUI_Imagem(
+                                        entidade,
+                                        "screens",
+                                        txtPath.getText(),
+                                        crud
+                                );
+                            } else {
+                                GeradorGUI geradorGUI = new GeradorGUI(
                                     entidade,
                                     atributos,
                                     "screens",
                                     txtPath.getText(),
                                     autor,
                                     entidade);
-                            
+                            }      
+
                             salvarEntidadeGerada();
                             messageDialog = new BuildMessageDialog(
                                     DialogMessageType.INFO,
                                     "Sus Interface foi gerada com sucesso",
                                     "GERAÇÃO CONCLUÍDA",
                                     cp);
-                            atributos.clear();
-                            modelGerador.clear();
-                            txtEnt.setEnabled(true);
-                            txtAutor.setEnabled(true);
-                            txtEnt.setText("");
-                            txtAutor.setText("");
-                            txtVar.setText("");
-                            combTypeSelect.setSelectedIndex(0);
-                            spnFieldSize.setValue(10);
-
-                            buttonInitialConfigurations();
+                            
+                            setDefaultConfigurations();
                         }
                     }
                 } catch (Exception excep) {
@@ -732,14 +712,20 @@ public class ScreenGerador extends JFrame {
                     } else {
                         String entidade = capitalize.capitalizeVarUpper(capitalize.removerAcentos(txtEnt.getText()));
                         String nomeArquivo = "src\\entidades_geradas\\" + entidade.trim();
-                        atributos = new Atributo().forListStringToList(fileManager.buscarDadosEmArquivoTxt(nomeArquivo));
+                        atributos = new Atributo().forListStringToList(fileManager.buscarDadosEmArquivoTxt(nomeArquivo));                        
                         if (atributos.isEmpty()) {
-                            atributos.clear();                         
+                            atributos.clear();
                             throw new Exception("Entidade não encontrada!");
                         } else {
+                            crud.setEntidade(entidade);
+                            crud.setAtributos(atributos);                            
                             for (Atributo var : atributos) {
-                                modelGerador.addModel(var.getType(), var.getName(), var.getSize());
                                 
+                                if (var.getType().equalsIgnoreCase("Image")) {
+                                    crud.setImageCrud(true);
+                                }
+                                modelGerador.addModel(var.getName(), var.getType(), var.getSize());
+
                             }
                             messageDialog = new BuildMessageDialog(
                                     DialogMessageType.SUCESS,
@@ -760,7 +746,6 @@ public class ScreenGerador extends JFrame {
 
             }
         });
-        
 
         pack();
 
@@ -773,7 +758,7 @@ public class ScreenGerador extends JFrame {
         });
 
     }
-    
+
     private void buttonInitialConfigurations() {
         btnInit.setEnabled(true);
         btnAdd.setEnabled(false);
@@ -783,6 +768,21 @@ public class ScreenGerador extends JFrame {
         btnGerarController.setEnabled(false);
         btnGerarMain.setEnabled(false);
         btnGerarGUI.setEnabled(false);
+    }
+
+    private void setDefaultConfigurations() {
+        atributos.clear();
+        crud = new Crud();
+        modelGerador.clear();
+        txtEnt.setEnabled(true);
+        txtAutor.setEnabled(true);
+        txtEnt.setText("");
+        txtAutor.setText("");
+        txtVar.setText("");
+        combTypeSelect.setSelectedIndex(0);
+        spnFieldSize.setValue(10);
+
+        buttonInitialConfigurations();
     }
 
     private void verifyPath() {
@@ -798,7 +798,7 @@ public class ScreenGerador extends JFrame {
         }
         txtPath.setText(destinyPath);
     }
-    
+
     private void salvarEntidadeGerada() {
         try {
             if (txtEnt.getText().trim().isEmpty() || atributos.isEmpty()) {
@@ -811,11 +811,11 @@ public class ScreenGerador extends JFrame {
             }
         } catch (Exception excep) {
             errorTools.showExceptionStackTrace(excep);
-                    messageDialog = new BuildMessageDialog(
-                            DialogMessageType.ERROR,
-                            excep.getMessage(),
-                            "FALHA AO ABRIR",
-                            cp);
+            messageDialog = new BuildMessageDialog(
+                    DialogMessageType.ERROR,
+                    excep.getMessage(),
+                    "FALHA AO ABRIR",
+                    cp);
         }
     }
 

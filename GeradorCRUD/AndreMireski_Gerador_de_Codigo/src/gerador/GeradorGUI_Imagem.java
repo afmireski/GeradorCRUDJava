@@ -9,30 +9,28 @@ import helpers.Capitalize;
 import java.util.ArrayList;
 import java.util.List;
 import modelsGerador.Atributo;
+import modelsGerador.Crud;
 import tools.ManipulaArquivo;
 
 /**
  *
- * @author afmireski
+ * @author AFMireski
  */
-public class GeradorGUI {
+public class GeradorGUI_Imagem {
 
     private final Capitalize capitalize = new Capitalize();
 
     private final String nomeClasse;
-    private final List<Atributo> atributos;
     private final String destinyPackage;
     private final String destinyPath;
-    private final String autor;
-    private final String entidade;
+    private final Crud crud;
 
-    public GeradorGUI(String nomeClasse, List<Atributo> atributos, String destinyPackage, String destinyPath, String autor, String entidade) {
+    public GeradorGUI_Imagem(String nomeClasse, String destinyPackage, String destinyPath, Crud crud) {
         this.nomeClasse = nomeClasse + "Screen";
-        this.atributos = atributos;
         this.destinyPackage = destinyPackage;
-        this.destinyPath = destinyPath == null ? "" : destinyPath;
-        this.autor = autor;
-        this.entidade = entidade;
+        this.destinyPath = destinyPath;
+        this.crud = crud;
+
         gerar();
     }
 
@@ -44,7 +42,7 @@ public class GeradorGUI {
         gerarImports();
         codigoGerado.add("/**\n"
                 + " *\n"
-                + " * @author " + autor + "\n"
+                + " * @author " + crud.getAutor() + "\n"
                 + " */");
         codigoGerado.add("public class " + nomeClasse + " extends JDialog{\n");
         gerarHelpers();
@@ -58,9 +56,13 @@ public class GeradorGUI {
         gerarTextFields();
         gerarEntidades();
         gerarTableScreens();
+        gerarPaths();
+        gerarImageConfigurations();
         gerarConstrutor();
+        gerarButtonsInitialConfigurationMethod();
+        gerarMetodosAuxiliaresImagem();
         codigoGerado.add("}");
-        criarArquivo();        
+        criarArquivo();
     }
 
     private void gerarImports() {
@@ -96,13 +98,19 @@ public class GeradorGUI {
                 + "import javax.swing.JPanel;\n"
                 + "import javax.swing.JSpinner;\n"
                 + "import javax.swing.JTextField;\n"
+                + "import javax.swing.ImageIcon;\n"
+                + "import java.io.File;\n"
+                + "import javax.swing.JFileChooser;"
                 + "import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;\n"
                 + "import tools.CaixaDeFerramentas;\n"
                 + "import tools.Tools;\n"
+                + "import tools.CopiarArquivos;\n"
+                + "import tools.DiretorioDaAplicacao;\n"
+                + "import tools.ImagemAjustada;\n"
                 + "import enums.DialogMessageType;\n"
                 + "import enums.DialogConfirmType;\n"
-                + "import controllers." + entidade + "Controller;\n"
-                + "import models." + entidade + ";\n");
+                + "import controllers." + crud.getEntidade() + "Controller;\n"
+                + "import models." + crud.getEntidade() + ";\n");
     }
 
     private void gerarHelpers() {
@@ -123,6 +131,9 @@ public class GeradorGUI {
     private void gerarTools() {
         codigoGerado.add("//INSTANCIA DAS TOOLS\n"
                 + "    final private CaixaDeFerramentas cf = new CaixaDeFerramentas();\n"
+                + "    final private ImagemAjustada imagemAjustada = new ImagemAjustada();"
+                + "    final private DiretorioDaAplicacao dda = new DiretorioDaAplicacao();"
+                + "    final private CopiarArquivos copiarArquivos = new CopiarArquivos();"
                 + "    Tools tools = new Tools();\n");
     }
 
@@ -136,12 +147,16 @@ public class GeradorGUI {
                 + "    //PANELS BASE\n"
                 + "    JPanel panNorth = new JPanel();\n"
                 + "    JPanel panSouth = new JPanel();\n"
-                + "    JPanel panEast = new JPanel();\n"
+                + "    JPanel panEast = new JPanel(new BorderLayout());\n"
                 + "    JPanel panWest = new JPanel();\n"
                 + "    JPanel panBody = new JPanel();\n");
 
+        codigoGerado.add("//EAST SUB PANELS\n"
+                + "    JPanel panSubEast1 = new JPanel(new FlowLayout(FlowLayout.CENTER));\n"
+                + "    JPanel panSubEast2 = new JPanel(new GridLayout(1, 1));");
+
         codigoGerado.add("//BODY PANELS");
-        for (int i = 0; i < atributos.size(); i++) {
+        for (int i = 0; i < crud.getAtributos().size(); i++) {
             //GERA UM PAR DE PAINÉIS PARA CADA LINHA E COLUNA DO GRID DO PAN BODY
             for (int j = 0; j < 2; j++) {
                 int l = i + 1;
@@ -155,59 +170,81 @@ public class GeradorGUI {
 
     private void gerarButtons() {
         codigoGerado.add("//INSTANCIA DOS BUTTONS\n"
-                + "    JButton btnCreate = new JButton(\"Create\");\n"
-                + "    JButton btnRetrieve = new JButton(\"Retrieve\");\n"
-                + "    JButton btnUpdate = new JButton(\"Update\");\n"
-                + "    JButton btnDelete = new JButton(\"Delete\");\n"
+                + "    JButton btnCreate = components.createCustomButton(\"Create\", \"/icons/create.png\");\n"
+                + "    JButton btnRetrieve = components.createCustomButton(\"Retrieve\", \"/icons/retrieve.png\");\n"
+                + "    JButton btnUpdate = components.createCustomButton(\"Update\", \"/icons/update.png\");\n"
+                + "    JButton btnDelete = components.createCustomButton(\"Delete\", \"/icons/delete.png\");\n"
                 + "    JButton btnAction = new JButton(\"Add to List\");\n"
-                + "    JButton btnRemove = new JButton(\"Remove\");\n"
-                + "    JButton btnCancel = new JButton(\"Cancel\");\n"
-                + "    JButton btnList = new JButton(\"List\");\n");
+                + "    JButton btnCancel = components.createCustomButton(\"Cancel\", \"/icons/cancel.png\");\n"
+                + "    JButton btnList = components.createCustomButton(\"List\", \"/icons/list.png\");\n"
+                + "    JButton btnSelectImage = new JButton(\"Select Image\");\n"
+                + "    JButton btnRemoveImage = new JButton(\"Remove Image\");\n");
     }
 
     private void gerarControllers() {
         codigoGerado.add("//INSTANCIA DOS CONTROLLERS\n"
                 + "    String actionController;\n"
                 + "    boolean listController = false;\n"
-                + "    " + entidade + "Controller " + capitalize.capitalizeTextLower(entidade)
-                + "Controller = new " + entidade + "Controller();\n");
+                + "    boolean imageController = false;\n"
+                + "    " + crud.getEntidade() + "Controller " + capitalize.capitalizeTextLower(crud.getEntidade())
+                + "Controller = new " + crud.getEntidade() + "Controller();\n");
     }
 
     private void gerarLabels() {
         codigoGerado.add("\n//INSTANCIA DOS LABELS");
         String aux[];
-        for (Atributo atributo : atributos) {
-            codigoGerado.add("JLabel lbl" + capitalize.capitalizeTextUpper(atributo.getName()) + " = new JLabel(\"" + atributo.getName().toUpperCase() + "\");");
+        for (Atributo atributo : crud.getAtributos()) {
+            if (!atributo.getType().equalsIgnoreCase("Image")) {
+                codigoGerado.add("JLabel lbl" + capitalize.capitalizeTextUpper(atributo.getName()) + " = new JLabel(\"" + atributo.getName().toUpperCase() + "\");");
+            }
         }
+        codigoGerado.add("JLabel lblImage = new JLabel();");
     }
 
     private void gerarTextFields() {
         codigoGerado.add("\n//INSTANCIA DOS TEXTFIELD");
-        pk = atributos.get(0);
-        for (Atributo atributo : atributos) {
-            codigoGerado.add("JTextField txt" + capitalize.capitalizeTextUpper(atributo.getName()) + " = new JTextField(" + atributo.getSize() + ");");
+        pk = crud.getAtributos().get(0);
+        for (Atributo atributo : crud.getAtributos()) {
+            if (!atributo.getType().equalsIgnoreCase("Image")) {
+                codigoGerado.add("JTextField txt" + capitalize.capitalizeTextUpper(atributo.getName()) + " = new JTextField(" + atributo.getSize() + ");");
+            }
         }
     }
 
     private void gerarEntidades() {
         codigoGerado.add("\n//INSTANCIA DAS ENTIDADES");
-        codigoGerado.add(entidade + " " + capitalize.capitalizeTextLower(entidade) + " = new " + entidade + "();");
+        codigoGerado.add(crud.getEntidade() + " " + capitalize.capitalizeTextLower(crud.getEntidade()) + " = new " + crud.getEntidade() + "();");
     }
 
     private void gerarTableScreens() {
         codigoGerado.add("//INSTANCIA DAS TABLE SCREENS");
-        codigoGerado.add(entidade + "TableScreen" + " " + capitalize.capitalizeTextLower(entidade) + "TableScreen" + ";");
-        GeradorTableScreen geradorTableScreen = new GeradorTableScreen(entidade, atributos, destinyPackage, destinyPath, autor, entidade);
+        codigoGerado.add(crud.getEntidade() + "TableScreen" + " " + capitalize.capitalizeTextLower(crud.getEntidade()) + "TableScreen" + ";");
+        GeradorTableScreen geradorTableScreen = new GeradorTableScreen(crud.getEntidade(), crud.getAtributos(), destinyPackage, destinyPath, crud.getAutor(), crud.getEntidade());
+    }
+
+    private void gerarPaths() {
+        codigoGerado.add("//PATHS\n"
+                + "    String currentPath = dda.getDiretorioDaAplicacao();");
+    }
+
+    private void gerarImageConfigurations() {
+        codigoGerado.add("//IMAGE CONFIGURATIONS\n"
+                + "    int defaultHeight = 300;\n"
+                + "    int defaultWidth = 300;\n"
+                + "    String defaultImagePath = currentPath + \"/src/images/default.png\";\n"
+                + "    String currentImage;");
     }
 
     private void gerarConstrutor() {
         codigoGerado.add("\n\npublic " + nomeClasse + "() {");
         gerarScreenDefaultConfigurations();
+        gerarImageInitialConfigurations();
         gerarLoadData();
         gerarButtonsInitialConfiguration();
         gerarTxtInitialConfigurations();
         gerarContainerConfigurations();
         gerarPanNorthConfigurations();
+        gerarPanEastConfigurations();
         gerarPanBodyConfigurations();
         gerarListenerRetrieve();
         gerarListenerCreate();
@@ -216,6 +253,8 @@ public class GeradorGUI {
         gerarListenerDelete();
         gerarListenerList();
         gerarListenerCancel();
+        gerarListenerSelectImage();
+        gerarListenerRemoveImage();
         gerarDispose();
         gerarLastDefautlConfigurations();
         codigoGerado.add("}");
@@ -224,37 +263,38 @@ public class GeradorGUI {
     private void gerarScreenDefaultConfigurations() {
         codigoGerado.add("        setDefaultCloseOperation(DISPOSE_ON_CLOSE);\n"
                 + "        setLocationRelativeTo(null);\n"
-                + "        setTitle(\"CRUD - " + entidade.toUpperCase() + "\");\n");
+                + "        setTitle(\"CRUD - " + crud.getEntidade().toUpperCase() + "\");\n");
+    }
+
+    private void gerarImageInitialConfigurations() {
+        codigoGerado.add("//IMAGE INITIAl CONFIGURATIONS\n"
+                + "        setImage(defaultImagePath);\n"
+                + "        currentImage = defaultImagePath;");
     }
 
     private void gerarLoadData() {
         codigoGerado.add("\t//LOAD DATA\n"
-                + "        final String path = \"" + capitalize.capitalizeTextUpper(entidade) + ".csv\";\n"
-                + "        " + capitalize.capitalizeTextLower(entidade) + "Controller.loadData(path);\n");
+                + "        final String path = \"" + capitalize.capitalizeTextUpper(crud.getEntidade()) + ".csv\";\n"
+                + "        " + capitalize.capitalizeTextLower(crud.getEntidade()) + "Controller.loadData(path);\n");
     }
 
     private void gerarButtonsInitialConfiguration() {
-        codigoGerado.add("\t//BUTTONS INITIAL CONFIGURATIONS\n"                
-                + "        btnRetrieve.setEnabled(true);\n"
-                + "        btnCancel.setVisible(false);\n"
-                + "        btnList.setVisible(true);\n"
-                + "        btnCreate.setEnabled(false);\n"
-                + "        btnAction.setVisible(false);\n"
-                + "        btnUpdate.setEnabled(false);\n"
-                + "        btnDelete.setEnabled(false);\n"
-                + "        btnOpen.setEnabled(false);\n");
+        codigoGerado.add("\t//BUTTONS INITIAL CONFIGURATIONS\n"
+                + "        buttonsInitialConfiguration();\n");
     }
 
     private void gerarTxtInitialConfigurations() {
         codigoGerado.add("\t//TEXTFIELD INITIAL CONFIGURATIONS");
         String bool = "";
-        for (Atributo atributo : atributos) {
-            if (atributo.equals(atributos.get(0))) {
+        for (Atributo atributo : crud.getAtributos()) {
+            if (atributo.equals(crud.getAtributos().get(0))) {
                 bool = "true";
             } else {
                 bool = "false";
             }
-            codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".setEnabled(" + bool + ");");
+            if (!atributo.getType().equalsIgnoreCase("Image")) {
+                codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".setEnabled(" + bool + ");");
+            }
         }
     }
 
@@ -285,12 +325,25 @@ public class GeradorGUI {
                 + "        //PAN WEST CONFIGURATIONS\n");
     }
 
+    private void gerarPanEastConfigurations() {
+
+        codigoGerado.add("\n\t//PAN EAST CONFIGURATIONS\n"
+                + "        panEast.setBackground(Color.BLACK);\n"
+                + "        panEast.add(panSubEast1, BorderLayout.NORTH);\n"
+                + "        panEast.add(panSubEast2, BorderLayout.CENTER);\n"
+                + "        \n"
+                + "        panSubEast1.add(btnSelectImage);\n"
+                + "        panSubEast1.add(btnRemoveImage);\n"
+                + "        \n"
+                + "        panSubEast2.add(lblImage);");
+    }
+
     private void gerarPanBodyConfigurations() {
         codigoGerado.add("\t//PAN BODY CONFIGURATIONS\n"
                 + "        panBody.setBorder(BorderFactory.createLineBorder(Color.black, 5));\n"
-                + "        panBody.setLayout(new GridLayout(" + atributos.size() + ", 2));\n");
+                + "        panBody.setLayout(new GridLayout(" + crud.getAtributos().size() + ", 2));\n");
         codigoGerado.add("\t//Prenchimento por Linha");
-        for (int i = 0; i < atributos.size(); i++) {
+        for (int i = 0; i < crud.getAtributos().size(); i++) {
             //GERA UM PAR DE PAINÉIS PARA CADA LINHA E COLUNA DO GRID DO PAN BODY
             for (int j = 0; j < 2; j++) {
                 int l = i + 1;
@@ -303,14 +356,17 @@ public class GeradorGUI {
     }
 
     private void gerarConfiguracaoLinhaX() {
-        for (int i = 1; i < atributos.size(); i++) {
+        for (int i = 1; i < crud.getAtributos().size(); i++) {
             int l = i;
-            String atributoName = capitalize.capitalizeTextUpper(atributos.get(i).getName());
-            codigoGerado.add("\n\t//Prenchimento Linha " + l);
-            codigoGerado.add("\tpanL" + l + "C1.add(lbl" + atributoName + ");");
-            codigoGerado.add("\tpanL" + l + "C2.add(txt" + atributoName + ");");
+            String atributoName = capitalize.capitalizeTextUpper(crud.getAtributos().get(i).getName());
+            if (!crud.getAtributos().get(i).getType().equalsIgnoreCase("Image")) {
+                codigoGerado.add("\n\t//Prenchimento Linha " + l);
+                codigoGerado.add("\tpanL" + l + "C1.add(lbl" + atributoName + ");");
+                codigoGerado.add("\tpanL" + l + "C2.add(txt" + atributoName + ");");
+            }
+
         }
-        int last = atributos.size();
+        int last = crud.getAtributos().size();
         codigoGerado.add("\n\t//Prenchimento Linha " + last);
         codigoGerado.add("\tpanL" + last + "C2.add(btnAction);");
     }
@@ -322,19 +378,30 @@ public class GeradorGUI {
                 + "            public void actionPerformed(ActionEvent e) {");
         codigoGerado.add("try {\n"
                 + "                    if (!txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".getText().trim().isEmpty()) {");
-        codigoGerado.add(capitalize.capitalizeTextLower(entidade) + " = " + capitalize.capitalizeTextLower(entidade) + "Controller.retrieve("
+        codigoGerado.add(capitalize.capitalizeTextLower(crud.getEntidade()) + " = " + capitalize.capitalizeTextLower(crud.getEntidade()) + "Controller.retrieve("
                 + gerarValueOf("txt" + capitalize.capitalizeTextUpper(pk.getName() + ".getText()")) + ");");
-        codigoGerado.add("if (" + capitalize.capitalizeTextLower(entidade) + "!= null){btnCreate.setEnabled(false);\n"
+        codigoGerado.add("if (" + capitalize.capitalizeTextLower(crud.getEntidade()) + "!= null){btnCreate.setEnabled(false);\n"
                 + "                            btnCreate.setVisible(true);\n"
                 + "                            btnUpdate.setEnabled(true);\n"
                 + "                            btnUpdate.setVisible(true);\n"
-                + "                            btnDelete.setEnabled(true);\n");        
-        for (int i = 1; i < atributos.size(); i++) {
-            Atributo atributo = atributos.get(i);
-            codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".setEnabled(false);");
+                + "                            btnDelete.setEnabled(true);\n");
+        for (int i = 1; i < crud.getAtributos().size(); i++) {
+            Atributo atributo = crud.getAtributos().get(i);
+            if (!atributo.getType().equalsIgnoreCase("Image")) {
+                codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".setEnabled(false);");
+            }
         }
         codigoGerado.add("");
         gerarSetters();
+        codigoGerado.add("String image;\n"
+                + "                            if (" + capitalize.capitalizeTextLower(crud.getEntidade()) + ".get" + getImageVar() + "().equals(\"Sim\")) {"
+                + "image = getImage(txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".getText());");
+        gerarSetIcon("image");
+        codigoGerado.add("} else {"
+                + "image = defaultImagePath;");
+        gerarSetIcon("image");
+        codigoGerado.add("} "
+                + "currentImage = image;");
         codigoGerado.add("} else {\n"
                 + "                            btnCreate.setEnabled(true);\n"
                 + "                            btnCreate.setVisible(true);\n"
@@ -342,6 +409,8 @@ public class GeradorGUI {
                 + "                            btnDelete.setEnabled(false);\n");
         gerarSetEnableTxt(true);
         gerarSetText("\"\"");
+        gerarSetIcon("defaultImagePath");
+        codigoGerado.add("currentImage = defaultImagePath;");
         codigoGerado.add("}\n}");
         gerarCatch("Data");
 
@@ -359,11 +428,22 @@ public class GeradorGUI {
                 + "                btnDelete.setEnabled(false);\n"
                 + "                btnCreate.setVisible(false);\n"
                 + "                btnCancel.setVisible(true);\n"
-                + "                btnAction.setVisible(true);\n");
+                + "                btnAction.setVisible(true);\n"
+                + "                btnSelectImage.setVisible(true);\n" 
+                + "                btnRemoveImage.setVisible(true);\n");
         codigoGerado.add("txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".setEnabled(false);");
-        codigoGerado.add("txt" + capitalize.capitalizeTextUpper(atributos.get(1).getName()) + ".requestFocus();");
+        for (int i = 1; i < crud.getAtributos().size(); i++) {
+            Atributo atributo = crud.getAtributos().get(i);
+            if (!atributo.getType().equalsIgnoreCase("Image")) {
+                ///Requisita o focus do primeiro atributo após a PK e que não for uma Image
+                codigoGerado.add("txt" + capitalize.capitalizeTextUpper(crud.getAtributos().get(i).getName()) + ".requestFocus();");
+                break;
+            }
+        }
+        
         codigoGerado.add("\n"
                 + "                actionController = \"CREATE\";\n"
+                + "imageController = false;"
                 + "\n"
                 + "                btnAction.setText(\"Adicionar à Lista\");");
         codigoGerado.add("}\n"
@@ -380,10 +460,19 @@ public class GeradorGUI {
                 + "                btnDelete.setEnabled(false);\n"
                 + "                btnCreate.setVisible(false);\n"
                 + "                btnCancel.setVisible(true);\n"
-                + "                btnAction.setVisible(true);\n");
+                + "                btnAction.setVisible(true);\n"
+                + "                btnSelectImage.setVisible(true);\n" 
+                + "                btnRemoveImage.setVisible(true);\n");
         codigoGerado.add("txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".setEnabled(false);");
         gerarSetEnableTxt(true);
-        codigoGerado.add("txt" + capitalize.capitalizeTextUpper(atributos.get(1).getName()) + ".requestFocus();");
+        for (int i = 1; i < crud.getAtributos().size(); i++) {
+            Atributo atributo = crud.getAtributos().get(i);
+            if (!atributo.getType().equalsIgnoreCase("Image")) {
+                ///Requisita o focus do primeiro atributo após a PK e que não for uma Image
+                codigoGerado.add("txt" + capitalize.capitalizeTextUpper(crud.getAtributos().get(i).getName()) + ".requestFocus();");
+                break;
+            }
+        }
         codigoGerado.add("\n"
                 + "                actionController = \"UPDATE\";\n"
                 + "\n"
@@ -399,21 +488,24 @@ public class GeradorGUI {
                 + "            public void actionPerformed(ActionEvent e) {");
         codigoGerado.add("try {");
         codigoGerado.add("if (actionController.equalsIgnoreCase(\"CREATE\")) {\n"
-                + "                        " + capitalize.capitalizeTextLower(entidade) + " = new " + entidade + "();\n"
+                + "                        " + capitalize.capitalizeTextLower(crud.getEntidade()) + " = new " + crud.getEntidade() + "();\n"
                 + "                    }");
-        codigoGerado.add(entidade + " " + capitalize.capitalizeTextLower(entidade) + "Antigo = " + capitalize.capitalizeTextLower(entidade) + ";");
+        codigoGerado.add(crud.getEntidade() + " " + capitalize.capitalizeTextLower(crud.getEntidade()) + "Antigo = " + capitalize.capitalizeTextLower(crud.getEntidade()) + ";");
         gerarVerificarTxt();
         codigoGerado.add(" else {");
         gerarSetterEntidade();
+        codigoGerado.add("if (imageController) {\n"
+                + "copiaFoto(txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".getText());\n"
+                + "}");
         codigoGerado.add("}");
         codigoGerado.add("if (actionController.equalsIgnoreCase(\"CREATE\")) {\n"
-                + "                            System.out.println(" + capitalize.capitalizeTextLower(entidade) + ".toString());\n"
-                + "                            " + capitalize.capitalizeTextLower(entidade) + "Controller.create(" + capitalize.capitalizeTextLower(entidade) + ");\n"
-                + "                            System.out.println(\"" + entidade.toUpperCase() + " ADICIONADO!\");\n"
+                + "                            System.out.println(" + capitalize.capitalizeTextLower(crud.getEntidade()) + ".toString());\n"
+                + "                            " + capitalize.capitalizeTextLower(crud.getEntidade()) + "Controller.create(" + capitalize.capitalizeTextLower(crud.getEntidade()) + ");\n"
+                + "                            System.out.println(\"" + crud.getEntidade().toUpperCase() + " ADICIONADO!\");\n"
                 + "                        } else if (actionController.equalsIgnoreCase(\"UPDATE\")) {\n"
-                + "                            System.out.println(\"" + entidade.toUpperCase() + " => \" + " + capitalize.capitalizeTextLower(entidade) + ".toString());\n"
-                + "                            System.out.println(\"" + entidade.toUpperCase() + " ANTIGO => \" + " + capitalize.capitalizeTextLower(entidade) + "Antigo.toString());\n"
-                + "                            " + capitalize.capitalizeTextLower(entidade) + "Controller.update(" + capitalize.capitalizeTextLower(entidade) + "Antigo, " + capitalize.capitalizeTextLower(entidade) + ");\n"
+                + "                            System.out.println(\"" + crud.getEntidade().toUpperCase() + " => \" + " + capitalize.capitalizeTextLower(crud.getEntidade()) + ".toString());\n"
+                + "                            System.out.println(\"" + crud.getEntidade().toUpperCase() + " ANTIGO => \" + " + capitalize.capitalizeTextLower(crud.getEntidade()) + "Antigo.toString());\n"
+                + "                            " + capitalize.capitalizeTextLower(crud.getEntidade()) + "Controller.update(" + capitalize.capitalizeTextLower(crud.getEntidade()) + "Antigo, " + capitalize.capitalizeTextLower(crud.getEntidade()) + ");\n"
                 + "                            System.out.println(\"LISTA ATUALIZADA!\");\n"
                 + "                        } else {\n");
         gerarException("Falha ao executar a ação na lista");
@@ -426,7 +518,8 @@ public class GeradorGUI {
                 + "                        btnCreate.setVisible(true);\n"
                 + "                        btnCreate.setEnabled(false);\n"
                 + "                        btnCancel.setVisible(false);\n"
-                + "");
+                + "                        btnSelectImage.setVisible(false);\n"
+                + "                        btnRemoveImage.setVisible(false);\n");
 
         codigoGerado.add("\n"
                 + "                        txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".setEnabled(true);\n"
@@ -436,6 +529,8 @@ public class GeradorGUI {
         gerarSetEnableTxt(false);
         gerarSetText("\"\"");
         codigoGerado.add("");
+        codigoGerado.add("currentImage = defaultImagePath;\n"
+                + "\tsetImage(defaultImagePath);");
         gerarCatch("ACTION");
         codigoGerado.add("}\n"
                 + "        });\n");
@@ -458,7 +553,8 @@ public class GeradorGUI {
                 + "                    btnUpdate.setEnabled(false);\n"
                 + "                    btnDelete.setEnabled(false);\n"
                 + "                    btnCreate.setEnabled(false);\n"
-                + "                    btnOpen.setEnabled(false);\n"
+                + "                    btnSelectImage.setVisible(false);\n"
+                + "                    btnRemoveImage.setVisible(false);\n"
                 + "\n"
                 + "                    actionController = \"DELETE\";\n"
                 + "                    btnAction.setVisible(false);\n"
@@ -471,13 +567,19 @@ public class GeradorGUI {
                 + "");
         gerarSetEnableTxt(false);
         gerarSetText("\"\"");
-        codigoGerado.add(capitalize.capitalizeTextLower(entidade) + "Controller.delete(" + capitalize.capitalizeTextLower(entidade) + ");\n");
+        codigoGerado.add("File image = new File(currentImage.trim());");
+        codigoGerado.add("\nif (image.exists()) {\n"
+                + "                        if (!currentImage.equals(defaultImagePath)) {\n"
+                + "                            image.delete();                            \n"
+                + "                        }\n"
+                + "                        setImage(defaultImagePath);\n");
+        codigoGerado.add(capitalize.capitalizeTextLower(crud.getEntidade()) + "Controller.delete(" + capitalize.capitalizeTextLower(crud.getEntidade()) + ");\n}");
         codigoGerado.add("messageDialog = new BuildMessageDialog(\n"
                 + "                            DialogMessageType.SUCESS,\n"
-                + "                            \""+entidade.toUpperCase()+" EXCLUÍDO COM SUCESSO\",\n"
+                + "                            \"" + crud.getEntidade().toUpperCase() + " EXCLUÍDO COM SUCESSO\",\n"
                 + "                            \"DELETE\",\n"
                 + "                            container);\n"
-                + "                    System.out.println(\""+entidade.toUpperCase()+" EXCLUÍDO\");");
+                + "                    System.out.println(\"" + crud.getEntidade().toUpperCase() + " EXCLUÍDO\");");
         codigoGerado.add("}");
         codigoGerado.add("}\n"
                 + "        });\n");
@@ -491,13 +593,13 @@ public class GeradorGUI {
                 + "                // A JANELA TABELA SÓ PODE SER ABERTA SE TABLESCREEN NÃO ESTIVER ATIVA.\n"
                 + "                if (listController) {\n"
                 + "                    //SE TABLE SCREEN ESTIVER ATIVA, A FECHA ANTES DE ABRIR NOVAMENTE.\n"
-                + "                    " + capitalize.capitalizeTextLower(entidade) + "TableScreen.dispose();\n"
+                + "                    " + capitalize.capitalizeTextLower(crud.getEntidade()) + "TableScreen.dispose();\n"
                 + "                    listController = false;\n"
                 + "                }\n"
-                + "                List<" + entidade + "> " + capitalize.capitalizeTextLower(entidade) + "s = "
-                + capitalize.capitalizeTextLower(entidade) + "Controller.listar();\n"
-                + "                " + capitalize.capitalizeTextLower(entidade) + "TableScreen = new "
-                + capitalize.capitalizeTextUpper(entidade) + "TableScreen(" + capitalize.capitalizeTextLower(entidade) + "s);\n"
+                + "                List<" + crud.getEntidade() + "> " + capitalize.capitalizeTextLower(crud.getEntidade()) + "s = "
+                + capitalize.capitalizeTextLower(crud.getEntidade()) + "Controller.listar();\n"
+                + "                " + capitalize.capitalizeTextLower(crud.getEntidade()) + "TableScreen = new "
+                + capitalize.capitalizeTextUpper(crud.getEntidade()) + "TableScreen(" + capitalize.capitalizeTextLower(crud.getEntidade()) + "s);\n"
                 + "                listController = true;\n"
                 + "            }\n"
                 + "        });");
@@ -517,9 +619,63 @@ public class GeradorGUI {
                 + "");
         gerarSetText("\"\"");
         codigoGerado.add("");
+        codigoGerado.add("currentImage = defaultImagePath;\n"
+                + "                setImage(defaultImagePath);");
         codigoGerado.add("}\n"
                 + "        });\n");
 
+    }
+
+    private void gerarListenerSelectImage() {
+        codigoGerado.add("btnSelectImage.addActionListener(new ActionListener() {\n"
+                + "            @Override\n"
+                + "            public void actionPerformed(ActionEvent e) {\n"
+                + "                JFileChooser fc = components.createFileChooser(\n"
+                + "                        null, \n"
+                + "                        JFileChooser.FILES_ONLY);\n"
+                + "                if (fc.showOpenDialog(container) == JFileChooser.APPROVE_OPTION) {\n"
+                + "                    File img = fc.getSelectedFile();\n"
+                + "                    currentImage = img.getAbsolutePath();\n"
+                + "                    \n"
+                + "                    try {\n"
+                + "                        setImage(currentImage);\n"
+                + "                        imageController = true;\n"
+                + "                    } catch (Exception excep) {\n"
+                + "                        messageDialog = new BuildMessageDialog(\n"
+                + "                                DialogMessageType.ERROR, \n"
+                + "                                \"Falha a carregar imagem!\", \n"
+                + "                                \"FALHA AO CARREGAR\", \n"
+                + "                                container);\n"
+                + "                    }\n"
+                + "                }\n"
+                + "            }\n"
+                + "        });");
+    }
+
+    private void gerarListenerRemoveImage() {
+        codigoGerado.add("btnRemoveImage.addActionListener(new ActionListener() {\n"
+                + "            @Override\n"
+                + "            public void actionPerformed(ActionEvent e) {\n"
+                + "                confirmDialog = new BuildConfirmDialog(\n"
+                + "                        DialogConfirmType.YES_NO, \n"
+                + "                        \"Deseja realmente remover a imagem?\", \n"
+                + "                        \"CONFIRMAR REMOÇÃO\");\n"
+                + "                \n"
+                + "                int response = confirmDialog.getResponse();\n"
+                + "                if (response == JOptionPane.YES_OPTION) {\n"
+                + "                    File img = new File(currentImage);\n"
+                + "                    if (img.exists()) {\n"
+                + "                        if (!currentImage.equals(defaultImagePath)) {\n"
+                + "                            img.delete();                            \n"
+                + "                        }\n"
+                + "                        currentImage = defaultImagePath;\n"
+                + "                        setImage(defaultImagePath);\n"
+                + "                        imageController = false;\n"
+                + "                    }                    \n"
+                + "                    \n"
+                + "                }\n"
+                + "            }\n"
+                + "        });");
     }
 
     private void gerarDispose() {
@@ -529,15 +685,15 @@ public class GeradorGUI {
                 + "            public void windowClosing(WindowEvent e) {\n"
                 + "                if (listController) {\n"
                 + "                    //SE TABLE SCREEN ESTIVER ATIVA, A FECHA ANTES DE ABRIR NOVAMENTE.\n"
-                + "                    " + capitalize.capitalizeTextLower(entidade) + "TableScreen.dispose();\n"
+                + "                    " + capitalize.capitalizeTextLower(crud.getEntidade()) + "TableScreen.dispose();\n"
                 + "                    listController = false;\n"
                 + "                }\n"
-                + "                "+ capitalize.capitalizeTextLower(entidade) + "Controller.saveData(path);\n"
+                + "                " + capitalize.capitalizeTextLower(crud.getEntidade()) + "Controller.saveData(path);\n"
                 + "                dispose();\n"
                 + "            }\n"
                 + "        });");
     }
-    
+
     private void gerarLastDefautlConfigurations() {
         codigoGerado.add("\n\tpack();"
                 + "\n\tsetModal(true);"
@@ -545,41 +701,75 @@ public class GeradorGUI {
     }
 
     private void gerarSetters() {
-        for (Atributo atributo : atributos) {
-            codigoGerado.add("txt" + capitalize.capitalizeTextUpper(atributo.getName())
-                    + ".setText(String.valueOf(" + capitalize.capitalizeTextLower(entidade)
-                    + ".get" + capitalize.capitalizeTextUpper(atributo.getName()) + "()));");
+        for (Atributo atributo : crud.getAtributos()) {
+            if (!atributo.getType().equalsIgnoreCase("Image")) {
+                codigoGerado.add("txt" + capitalize.capitalizeTextUpper(atributo.getName())
+                        + ".setText(String.valueOf(" + capitalize.capitalizeTextLower(crud.getEntidade())
+                        + ".get" + capitalize.capitalizeTextUpper(atributo.getName()) + "()));");
+            }
+
         }
     }
 
+    private String getImageVar() {
+        ///Retorna a primeira variável do tipo Image contida em atributos;
+        for (Atributo atributo : crud.getAtributos()) {
+            if (atributo.getType().equalsIgnoreCase("Image")) {
+                return capitalize.capitalizeTextUpper(atributo.getName());
+            }
+        }
+        return "/*FIXME: adicione a variável que armazena a imagem*/";
+    }
+
+    private void gerarSetIcon(String image) {
+        codigoGerado.add("ImageIcon icon = imagemAjustada.getImagemAjustada(\n"
+                + "                                       " + image + ", \n"
+                + "                                        defaultHeight, \n"
+                + "                                        defaultWidth);\n"
+                + "                                lblImage.setIcon(icon); ");
+    }
+
     private void gerarSetterEntidade() {
-        for (Atributo atributo : atributos) {
-            codigoGerado.add(capitalize.capitalizeTextLower(entidade) + ".set" + capitalize.capitalizeTextUpper(atributo.getName()) + "("
-                    + gerarValueOf("txt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".getText()") + ");");
+        for (Atributo atributo : crud.getAtributos()) {
+            if (atributo.getType().equalsIgnoreCase("Image")) {
+                codigoGerado.add(capitalize.capitalizeTextLower(crud.getEntidade()) + ".set" + capitalize.capitalizeTextUpper(atributo.getName())
+                        + "(imageController ? \"Sim\" : \"Não\");");
+            } else {
+                codigoGerado.add(capitalize.capitalizeTextLower(crud.getEntidade()) + ".set" + capitalize.capitalizeTextUpper(atributo.getName()) + "("
+                        + gerarValueOf("txt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".getText()") + ");");
+            }
         }
     }
 
     private void gerarSetEnableTxt(boolean enabled) {
-        for (int i = 1; i < atributos.size(); i++) {
-            Atributo atributo = atributos.get(i);
-            codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".setEnabled(" + enabled + ");");
+        for (int i = 1; i < crud.getAtributos().size(); i++) {
+            Atributo atributo = crud.getAtributos().get(i);
+            if (!atributo.getType().equalsIgnoreCase("Image")) {
+                codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".setEnabled(" + enabled + ");");
+            }
         }
     }
 
     private void gerarSetText(String content) {
-        for (int i = 1; i < atributos.size(); i++) {
-            Atributo atributo = atributos.get(i);
-            codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".setText(" + content + ");");
+        for (int i = 1; i < crud.getAtributos().size(); i++) {
+            Atributo atributo = crud.getAtributos().get(i);
+            if (!atributo.getType().equalsIgnoreCase("Image")) {
+                codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".setText(" + content + ");");
+            }
+
         }
     }
 
     private void gerarVerificarTxt() {
         String condicao = "";
-        for (int i = 1; i < atributos.size(); i++) {
-            Atributo atributo = atributos.get(i);
-            condicao += "txt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".getText().trim().isEmpty()";
-            if (i < atributos.size() - 1) {
-                condicao += " || ";
+        for (int i = 1; i < crud.getAtributos().size(); i++) {
+            Atributo atributo = crud.getAtributos().get(i);
+            if (!atributo.getType().equalsIgnoreCase("Image")) {
+                condicao += "txt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".getText().trim().isEmpty()";
+
+                if (i < crud.getAtributos().size() - 1) {
+                    condicao += " || ";
+                }
             }
         }
         codigoGerado.add("if (" + condicao + "){");
@@ -604,23 +794,23 @@ public class GeradorGUI {
     }
 
     private String gerarValueOf(String campo) {
-        for (Atributo atributo : atributos) {
+        for (Atributo atributo : crud.getAtributos()) {
             if (campo.toLowerCase().contains(atributo.getName().toLowerCase())) {
                 switch (atributo.getType().trim()) {
                     case "byte":
-                        return "Byte.valueOf("+ campo +")";
+                        return "Byte.valueOf(" + campo + ")";
                     case "short":
-                        return "Short.valueOf("+ campo +")";
+                        return "Short.valueOf(" + campo + ")";
                     case "int":
                         return "Integer.valueOf(" + campo + ")";
                     case "double":
                         return "Double.valueOf(" + campo + ")";
                     case "float":
-                        return "Float.valueOf("+ campo +")";
+                        return "Float.valueOf(" + campo + ")";
                     case "long":
                         return "Long.valueOf(" + campo + ")";
                     case "Date":
-                        return "cf.converteDeStringParaDate(" + campo + ")";      
+                        return "cf.converteDeStringParaDate(" + campo + ")";
                     case "String":
                     default:
                         return campo;
@@ -630,10 +820,41 @@ public class GeradorGUI {
         return campo;
     }
 
+    private void gerarButtonsInitialConfigurationMethod() {
+        codigoGerado.add("private void buttonsInitialConfiguration()  {\n"
+                + "        btnRetrieve.setEnabled(true);\n"
+                + "        btnCancel.setVisible(false);\n"
+                + "        btnList.setVisible(true);\n"
+                + "        btnCreate.setEnabled(false);\n"
+                + "        btnAction.setVisible(false);\n"
+                + "        btnUpdate.setEnabled(false);\n"
+                + "        btnDelete.setEnabled(false);\n"
+                + "        btnSelectImage.setVisible(false);\n"
+                + "        btnRemoveImage.setVisible(false);\n"
+                + "    }");
+    }
+
+    private void gerarMetodosAuxiliaresImagem() {
+        codigoGerado.add("private void setImage(String imagePath) {\n"
+                + "        lblImage.setIcon(imagemAjustada.getImagemAjustada(\n"
+                + "                imagePath, defaultHeight, defaultWidth));\n"
+                + "    }\n");
+        codigoGerado.add("private String getImage(String pk) {\n"
+                + "        return currentPath + \"/src/images/\" + pk.trim() + \".png\";\n"
+                + "    }\n");
+        codigoGerado.add("private void copiaFoto(String pk) {\n"
+                + "        String destino = getImage(pk);\n"
+                + "        \n"
+                + "        System.out.println(currentImage);\n"
+                + "        System.out.println(destino);\n"
+                + "        \n"
+                + "        copiarArquivos.copiar(currentImage, destino);\n"
+                + "    }\n");
+    }
+
     private void criarArquivo() {
         ManipulaArquivo manipulaArquivo = new ManipulaArquivo();
         manipulaArquivo.salvarArquivo(destinyPath + "/src/" + destinyPackage + "/" + nomeClasse + ".java", codigoGerado);
         System.out.println("GEROU!");
     }
-
 }

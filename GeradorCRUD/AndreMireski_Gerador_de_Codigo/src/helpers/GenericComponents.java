@@ -11,6 +11,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.util.List;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -83,6 +85,18 @@ public class GenericComponents {
         jFileChooser.setFileSelectionMode(selectedMode);
         
         return jFileChooser;
+    }
+    
+    ///BUTTONS
+    public JButton createCustomButton(String label, String iconPath) {
+        JButton jButton;
+        if (iconPath != null && !iconPath.trim().isEmpty()) {
+            ImageIcon icon = new javax.swing.ImageIcon(getClass().getResource(iconPath));
+            jButton = new JButton(label, icon);
+        } else {
+            jButton = new JButton(label);                        
+        }
+        return jButton;
     }
     
     

@@ -1,3 +1,0 @@
-int;pk;10
-String;varString;10
-double;varDouble;10

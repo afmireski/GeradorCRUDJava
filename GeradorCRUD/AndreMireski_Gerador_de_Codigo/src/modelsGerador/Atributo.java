@@ -63,7 +63,7 @@ public class Atributo {
         List<Atributo> atributosList = new ArrayList<>();
         for (String atributo : atributos) {
             String aux[] = atributo.split(";");
-            Atributo var = new Atributo(aux[0], aux[1], aux[2]);
+            Atributo var = new Atributo(aux[1], aux[0], aux[2]);
             atributosList.add(var);
         }
         return atributosList;        
