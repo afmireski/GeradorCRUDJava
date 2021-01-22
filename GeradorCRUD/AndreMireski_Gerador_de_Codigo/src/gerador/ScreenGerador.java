@@ -194,6 +194,9 @@ public class ScreenGerador extends JFrame {
 
         //TXT INITIAL CONFIGURATIONS
         txtPath.setEditable(false);
+        
+        //RADIO BUTTON CONFIG
+        radHasImage.setEnabled(false);
 
         //CONTAINER CONFIGURATIONS
         cp = getContentPane();
@@ -304,6 +307,7 @@ public class ScreenGerador extends JFrame {
                         btnInit.setEnabled(false);
                         btnAdd.setEnabled(true);
                         btnCancel.setEnabled(true);
+                        radHasImage.setEnabled(true);
 
                         btnCarregarEntidade.setEnabled(false);
                         txtEnt.setEnabled(false);
@@ -796,6 +800,7 @@ public class ScreenGerador extends JFrame {
     }
 
     private void buttonInitialConfigurations() {
+        btnCarregarEntidade.setEnabled(true);
         btnInit.setEnabled(true);
         btnAdd.setEnabled(false);
         btnCancel.setEnabled(false);
@@ -807,9 +812,6 @@ public class ScreenGerador extends JFrame {
     }
 
     private void setDefaultConfigurations() {
-        atributos.clear();
-        crud = new Crud();
-        modelGerador.clear();
         txtEnt.setEnabled(true);
         txtAutor.setEnabled(true);
         txtEnt.setText("");
@@ -818,8 +820,13 @@ public class ScreenGerador extends JFrame {
         combTypeSelect.setSelectedIndex(0);
         spnFieldSize.setValue(10);
         radHasImage.setSelected(false);
+        radHasImage.setEnabled(false);
 
         buttonInitialConfigurations();
+        
+        atributos.clear();
+        modelGerador.clear();
+        crud = new Crud();
     }
 
     private void verifyPath() {
