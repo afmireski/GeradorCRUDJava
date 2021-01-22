@@ -54,11 +54,14 @@ public class ModelGerador extends AbstractTableModel {
         fireTableRowsDeleted(0, ultimoIndice);
     }
     
+    public void removeModel(int index) {
+        lista.remove(index);
+        int ultimoIndice = getRowCount();
+        fireTableRowsDeleted(index, index);
+    }
+    
     public void addModel(String name, String type, String size){
-        Atributo atributo = new Atributo();
-        atributo.setName(name);
-        atributo.setType(type);
-        atributo.setSize(size);
+        Atributo atributo = new Atributo(name, type, size);
         lista.add(atributo);
         fireTableDataChanged();
         int ultimoIndice = getRowCount() - 1;

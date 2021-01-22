@@ -34,12 +34,15 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import modelsGerador.Atributo;
 import modelsGerador.Crud;
@@ -79,7 +82,7 @@ public class ScreenGerador extends JFrame {
     JPanel panEast = new JPanel();
     JPanel panWest = new JPanel();
     JPanel panCenter = new JPanel();
-    JPanel panBody = new JPanel(new GridLayout(4, 2));
+    JPanel panBody = new JPanel(new GridLayout(5, 2));
     JPanel panBodyTable = new JPanel(new GridLayout(1, 1));
 
 //NORTH PANELS
@@ -99,8 +102,10 @@ public class ScreenGerador extends JFrame {
     JPanel panL2C2 = new JPanel(); //Painel referente a posição da grade: Linha 2 - Coluna 2
     JPanel panL3C1 = new JPanel(); //Painel referente a posição da grade: Linha 3 - Coluna 1
     JPanel panL3C2 = new JPanel(); //Painel referente a posição da grade: Linha 3 - Coluna 2
-    JPanel panL4C1 = new JPanel(); //Painel referente a posição da grade: Linha 3 - Coluna 1
-    JPanel panL4C2 = new JPanel(); //Painel referente a posição da grade: Linha 3 - Coluna 2
+    JPanel panL4C1 = new JPanel(); //Painel referente a posição da grade: Linha 4 - Coluna 1
+    JPanel panL4C2 = new JPanel(); //Painel referente a posição da grade: Linha 4 - Coluna 2
+    JPanel panL5C1 = new JPanel(); //Painel referente a posição da grade: Linha 5 - Coluna 1
+    JPanel panL5C2 = new JPanel(); //Painel referente a posição da grade: Linha 5 - Coluna 2
 
     //INSTANCIA DA TABELA
     ModelGerador modelGerador = new ModelGerador();
@@ -119,6 +124,8 @@ public class ScreenGerador extends JFrame {
     JButton btnGerarMain = new JButton("Gerar Main");
     JButton btnGerarGUI = new JButton("Gerar Interface");
     JButton btnCarregarEntidade = new JButton("Abrir");
+    
+    JRadioButton radHasImage = new JRadioButton("Suporte de Imagem");
 
     //INSTANCIA DOS LABELS
     JLabel lblEnt = new JLabel("ENTIDADE");
@@ -141,7 +148,7 @@ public class ScreenGerador extends JFrame {
     JComboBox combTypeSelect;
 
     //INSTANCIA DOS TIPOS
-    String types[] = {"byte", "short", "int", "long", "float", "double", "String", "boolean", "Date", "Image"};
+    String types[] = {"byte", "short", "int", "long", "float", "double", "String", "boolean", "Date"};
     List<String> typeList = Arrays.asList(types);
 
     //INSTANCIA DO LIST ATRIBUTOS;
@@ -244,7 +251,7 @@ public class ScreenGerador extends JFrame {
         panCenter.add(panBodyTable);
 
         //PAN BODY CONFIGURATIONS
-        //Prenchimento por Linha
+        //Preenchimento por Linha
         panBody.add(panL1C1);
         panBody.add(panL1C2);
         panBody.add(panL2C1);
@@ -253,8 +260,10 @@ public class ScreenGerador extends JFrame {
         panBody.add(panL3C2);
         panBody.add(panL4C1);
         panBody.add(panL4C2);
+        panBody.add(panL5C1);
+        panBody.add(panL5C2);
 
-        //Configuração/Prenchimento da tabela
+        //Configuração/Preenchimento da tabela
         jtable.getColumnModel().getColumn(0).setPreferredWidth(70);
         jtable.getColumnModel().getColumn(1).setPreferredWidth(20);
         jtable.getColumnModel().getColumn(2).setPreferredWidth(10);
@@ -266,21 +275,25 @@ public class ScreenGerador extends JFrame {
         scroll.setBorder(titledBorder);
         panBodyTable.add(scroll);
 
-        //Prenchimento Linha 1
+        //Preenchimento Linha 1
         panL1C1.add(lblTipo);
         panL1C2.add(combTypeSelect);
 
-        //Prenchimento Linha 2
+        //Preenchimento Linha 2
         panL2C1.add(lblVar);
         panL2C2.add(txtVar);
 
-        //Prenchimento Linha 3
+        //Preenchimento Linha 3
         panL3C1.add(lblSize);
         panL3C2.add(spnFieldSize);
 
-        //Prenchimento Linha 4
+        //Preenchimento Linha 4
         panL4C2.add(btnAdd);
+        
+        //Preenchimento
+        panL5C1.add(radHasImage);
 
+        
         btnInit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -362,9 +375,6 @@ public class ScreenGerador extends JFrame {
 
                         atributos.add(atributo);
                         crud.setAtributos(atributos);
-                        if (type.equalsIgnoreCase("Image")) {
-                            crud.setImageCrud(true);                            
-                        }
 
                         modelGerador.addModel(var, type, size);
                         txtVar.setText("");
@@ -720,8 +730,8 @@ public class ScreenGerador extends JFrame {
                             crud.setEntidade(entidade);
                             crud.setAtributos(atributos);                            
                             for (Atributo var : atributos) {
-                                
                                 if (var.getType().equalsIgnoreCase("Image")) {
+                                    radHasImage.setSelected(true);
                                     crud.setImageCrud(true);
                                 }
                                 modelGerador.addModel(var.getName(), var.getType(), var.getSize());
@@ -746,6 +756,14 @@ public class ScreenGerador extends JFrame {
 
             }
         });
+        
+        radHasImage.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                crud.setImageCrud(radHasImage.isSelected());
+                suporteImagem();  
+            }
+        });
 
         pack();
 
@@ -757,6 +775,24 @@ public class ScreenGerador extends JFrame {
             }
         });
 
+    }
+    
+    private void suporteImagem() {
+        Atributo imagem = new Atributo("image", "Image", "10");
+        if (radHasImage.isSelected()) {            
+            atributos.add(imagem);
+            modelGerador.addModel(imagem.getName(), imagem.getType(), imagem.getSize());
+        } else {
+            for (int i = 0; i < atributos.size(); i++) {
+                if (atributos.get(i).getType().equals("Image")) {                    
+                    atributos.remove(i);
+                    modelGerador.removeModel(i);
+                    break;
+                }
+            }
+        
+        }
+        crud.setAtributos(atributos);
     }
 
     private void buttonInitialConfigurations() {
@@ -781,6 +817,7 @@ public class ScreenGerador extends JFrame {
         txtVar.setText("");
         combTypeSelect.setSelectedIndex(0);
         spnFieldSize.setValue(10);
+        radHasImage.setSelected(false);
 
         buttonInitialConfigurations();
     }
