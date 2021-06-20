@@ -6,6 +6,7 @@
 
 package helpers;
 
+import com.sun.istack.internal.NotNull;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -88,7 +89,7 @@ public class GenericComponents {
     }
     
     ///BUTTONS
-    public JButton createCustomButton(String label, String iconPath) {
+    public JButton buttonWithIcon(String label, String iconPath) {
         JButton jButton;
         if (iconPath != null && !iconPath.trim().isEmpty()) {
             ImageIcon icon = new javax.swing.ImageIcon(getClass().getResource(iconPath));
@@ -96,6 +97,12 @@ public class GenericComponents {
         } else {
             jButton = new JButton(label);                        
         }
+        return jButton;
+    }
+    
+    public JButton iconButton(@NotNull String iconPath) {
+        ImageIcon icon = new javax.swing.ImageIcon(getClass().getResource(iconPath));
+        JButton jButton = new JButton(icon);
         return jButton;
     }
     
