@@ -241,8 +241,7 @@ public class GeradorGUI {
                 + "        btnCreate.setEnabled(false);\n"
                 + "        btnAction.setVisible(false);\n"
                 + "        btnUpdate.setEnabled(false);\n"
-                + "        btnDelete.setEnabled(false);\n"
-                + "        btnOpen.setEnabled(false);\n");
+                + "        btnDelete.setEnabled(false);\n");
     }
 
     private void gerarTxtInitialConfigurations() {
@@ -458,7 +457,6 @@ public class GeradorGUI {
                 + "                    btnUpdate.setEnabled(false);\n"
                 + "                    btnDelete.setEnabled(false);\n"
                 + "                    btnCreate.setEnabled(false);\n"
-                + "                    btnOpen.setEnabled(false);\n"
                 + "\n"
                 + "                    actionController = \"DELETE\";\n"
                 + "                    btnAction.setVisible(false);\n"
