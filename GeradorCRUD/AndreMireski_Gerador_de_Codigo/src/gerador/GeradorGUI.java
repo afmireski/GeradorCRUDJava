@@ -481,7 +481,7 @@ public class GeradorGUI {
                 + "                        textFieldInitialConfiguration();\n"
                 + "                        txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".requestFocus();\n"
                 + "");
-        gerarSetEditableTxt(false);
+//        gerarSetEditableTxt(false);
         codigoGerado.add("clearAllFields();");
         codigoGerado.add(capitalize.capitalizeTextLower(entidade) + "Controller.delete(" + capitalize.capitalizeTextLower(entidade) + ");\n");
         codigoGerado.add("messageDialog = new BuildMessageDialog(\n"
