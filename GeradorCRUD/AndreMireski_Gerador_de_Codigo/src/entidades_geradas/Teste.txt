@@ -1,0 +1,4 @@
+int;varPK;10
+String;varString;10
+long;varLong;10
+double;varDouble;10

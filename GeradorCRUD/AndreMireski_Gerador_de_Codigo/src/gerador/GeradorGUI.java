@@ -59,6 +59,9 @@ public class GeradorGUI {
         gerarEntidades();
         gerarTableScreens();
         gerarConstrutor();
+        gerarButtonsInitialConfiguration();
+        gerarTxtInitialConfigurations();
+        gerarClearAllFields();
         codigoGerado.add("}");
         criarArquivo();        
     }
@@ -204,8 +207,8 @@ public class GeradorGUI {
         codigoGerado.add("\n\npublic " + nomeClasse + "() {");
         gerarScreenDefaultConfigurations();
         gerarLoadData();
-        gerarButtonsInitialConfiguration();
-        gerarTxtInitialConfigurations();
+        codigoGerado.add("buttonsInitialConfiguration();");
+        codigoGerado.add("textFieldInitialConfiguration();");
         gerarContainerConfigurations();
         gerarPanNorthConfigurations();
         gerarPanBodyConfigurations();
@@ -218,7 +221,7 @@ public class GeradorGUI {
         gerarListenerCancel();
         gerarDispose();
         gerarLastDefautlConfigurations();
-        codigoGerado.add("}");
+        codigoGerado.add("}\n\n");
     }
 
     private void gerarScreenDefaultConfigurations() {
@@ -234,18 +237,21 @@ public class GeradorGUI {
     }
 
     private void gerarButtonsInitialConfiguration() {
-        codigoGerado.add("\t//BUTTONS INITIAL CONFIGURATIONS\n"                
+        codigoGerado.add("private void buttonsInitialConfiguration() {"
+                + "\t//BUTTONS INITIAL CONFIGURATIONS\n"                
                 + "        btnRetrieve.setEnabled(true);\n"
                 + "        btnCancel.setVisible(false);\n"
                 + "        btnList.setVisible(true);\n"
                 + "        btnCreate.setEnabled(false);\n"
                 + "        btnAction.setVisible(false);\n"
                 + "        btnUpdate.setEnabled(false);\n"
-                + "        btnDelete.setEnabled(false);\n");
+                + "        btnDelete.setEnabled(false);\n"
+                + "}\n\n");
     }
 
     private void gerarTxtInitialConfigurations() {
-        codigoGerado.add("\t//TEXTFIELD INITIAL CONFIGURATIONS");
+        codigoGerado.add("private void textFieldInitialConfiguration() {"
+                + "\t//TEXTFIELD INITIAL CONFIGURATIONS");
         String bool = "";
         for (Atributo atributo : atributos) {
             if (atributo.equals(atributos.get(0))) {
@@ -253,8 +259,17 @@ public class GeradorGUI {
             } else {
                 bool = "false";
             }
-            codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".setEnabled(" + bool + ");");
+            codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".setEditable(" + bool + ");");
         }
+        codigoGerado.add("}\n\n");
+    }
+    
+    private void gerarClearAllFields() {
+        codigoGerado.add("private void clearAllFields() {\n");
+        for (Atributo atributo : atributos) {
+            codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".setText(\"\");");
+        }
+        codigoGerado.add("    }\n\n");
     }
 
     private void gerarContainerConfigurations() {
@@ -330,7 +345,7 @@ public class GeradorGUI {
                 + "                            btnDelete.setEnabled(true);\n");        
         for (int i = 1; i < atributos.size(); i++) {
             Atributo atributo = atributos.get(i);
-            codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".setEnabled(false);");
+            codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".setEditable(false);");
         }
         codigoGerado.add("");
         gerarSetters();
@@ -339,7 +354,7 @@ public class GeradorGUI {
                 + "                            btnCreate.setVisible(true);\n"
                 + "                            btnUpdate.setEnabled(false);\n"
                 + "                            btnDelete.setEnabled(false);\n");
-        gerarSetEnableTxt(true);
+        gerarSetEditableTxt(true);
         gerarSetText("\"\"");
         codigoGerado.add("}\n}");
         gerarCatch("Data");
@@ -359,7 +374,7 @@ public class GeradorGUI {
                 + "                btnCreate.setVisible(false);\n"
                 + "                btnCancel.setVisible(true);\n"
                 + "                btnAction.setVisible(true);\n");
-        codigoGerado.add("txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".setEnabled(false);");
+        codigoGerado.add("txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".setEditable(false);");
         codigoGerado.add("txt" + capitalize.capitalizeTextUpper(atributos.get(1).getName()) + ".requestFocus();");
         codigoGerado.add("\n"
                 + "                actionController = \"CREATE\";\n"
@@ -380,8 +395,8 @@ public class GeradorGUI {
                 + "                btnCreate.setVisible(false);\n"
                 + "                btnCancel.setVisible(true);\n"
                 + "                btnAction.setVisible(true);\n");
-        codigoGerado.add("txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".setEnabled(false);");
-        gerarSetEnableTxt(true);
+        codigoGerado.add("txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".setEditable(false);");
+        gerarSetEditableTxt(true);
         codigoGerado.add("txt" + capitalize.capitalizeTextUpper(atributos.get(1).getName()) + ".requestFocus();");
         codigoGerado.add("\n"
                 + "                actionController = \"UPDATE\";\n"
@@ -425,15 +440,14 @@ public class GeradorGUI {
                 + "                        btnCreate.setVisible(true);\n"
                 + "                        btnCreate.setEnabled(false);\n"
                 + "                        btnCancel.setVisible(false);\n"
+                + "                        textFieldInitialConfiguration();"
                 + "");
 
         codigoGerado.add("\n"
-                + "                        txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".setEnabled(true);\n"
-                + "                        txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".setText(\"\");\n"
+                + "                        txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".setEditable(true);\n"
                 + "                        txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".requestFocus();\n"
                 + "");
-        gerarSetEnableTxt(false);
-        gerarSetText("\"\"");
+        codigoGerado.add("clearAllFields();");
         codigoGerado.add("");
         gerarCatch("ACTION");
         codigoGerado.add("}\n"
@@ -463,12 +477,12 @@ public class GeradorGUI {
                 + "                    btnRetrieve.setEnabled(true);\n"
                 + "");
         codigoGerado.add("\n"
-                + "                        txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".setEnabled(true);\n"
-                + "                        txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".setText(\"\");\n"
+                + "                        txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".setEditable(true);\n"
+                + "                        textFieldInitialConfiguration();\n"
                 + "                        txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".requestFocus();\n"
                 + "");
-        gerarSetEnableTxt(false);
-        gerarSetText("\"\"");
+        gerarSetEditableTxt(false);
+        codigoGerado.add("clearAllFields();");
         codigoGerado.add(capitalize.capitalizeTextLower(entidade) + "Controller.delete(" + capitalize.capitalizeTextLower(entidade) + ");\n");
         codigoGerado.add("messageDialog = new BuildMessageDialog(\n"
                 + "                            DialogMessageType.SUCESS,\n"
@@ -507,13 +521,12 @@ public class GeradorGUI {
                 + "            @Override\n"
                 + "            public void actionPerformed(ActionEvent e) {\n"
                 + "                //RETORNA A TELA AO ESTADO INICIAL");
-        gerarButtonsInitialConfiguration();
-        gerarTxtInitialConfigurations();
+        codigoGerado.add("buttonsInitialConfiguration();");
+        codigoGerado.add("textFieldInitialConfiguration();");        
+        codigoGerado.add("clearAllFields();");                
         codigoGerado.add("\n"
-                + "                        txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".setText(\"\");\n"
                 + "                        txt" + capitalize.capitalizeTextUpper(pk.getName()) + ".requestFocus();\n"
                 + "");
-        gerarSetText("\"\"");
         codigoGerado.add("");
         codigoGerado.add("}\n"
                 + "        });\n");
@@ -557,10 +570,10 @@ public class GeradorGUI {
         }
     }
 
-    private void gerarSetEnableTxt(boolean enabled) {
+    private void gerarSetEditableTxt(boolean isEditable) {
         for (int i = 1; i < atributos.size(); i++) {
             Atributo atributo = atributos.get(i);
-            codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".setEnabled(" + enabled + ");");
+            codigoGerado.add("\ttxt" + capitalize.capitalizeTextUpper(atributo.getName()) + ".setEditable(" + isEditable + ");");
         }
     }
 
