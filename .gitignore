@@ -1,5 +1,11 @@
 
 *.class
-GeradorCRUD/AndreMireski_Gerador_de_Codigo/nbproject/private/private.xml
-GeradorCRUD/AndreMireski_Gerador_de_Codigo/build/built-jar.properties
-/GeradorCRUD/GeradorCRUDJava/build/
+GeradorCRUD/GeradorCRUDJava/nbproject/private/private.xml
+GeradorCRUD/GeradorCRUDJava/build/built-jar.properties
+GeradorCRUD/GeradorCRUDJava/build/
+GeradorCRUD/GeradorCRUDJava/nbproject/private/
+GeradorCRUD/GeradorCRUDJava/src/entidades_geradas/
+*.txt
+GeradorCRUD/GeradorCRUDJava/nbproject/private/private.xml
+/GeradorCRUD/GeradorCRUDJava/dist/
+GeradorCRUD/GeradorCRUDJava/LastPath.txt

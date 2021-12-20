@@ -6,9 +6,7 @@
 
 package helpers;
 
-import com.sun.istack.internal.NotNull;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.util.List;
 import javax.swing.DefaultComboBoxModel;
@@ -100,7 +98,7 @@ public class GenericComponents {
         return jButton;
     }
     
-    public JButton iconButton(@NotNull String iconPath) {
+    public JButton iconButton(String iconPath) {
         ImageIcon icon = new javax.swing.ImageIcon(getClass().getResource(iconPath));
         JButton jButton = new JButton(icon);
         return jButton;

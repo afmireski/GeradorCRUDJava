@@ -157,9 +157,9 @@ public class ScreenGerador extends JFrame {
     List<Atributo> atributos = new ArrayList<>();
 
     //INSTANCIA DOS CAMINHOS PADRÃO
-    String caminhos[] = {"\\src\\models", "\\src\\screens", "\\src\\controllers",
-        "\\src\\enums", "\\src\\functions", "\\src\\helpers", "\\src\\tools", "\\src\\icons",
-        "\\src\\main"};
+    String caminhos[] = {"/src/models", "/src/screens", "/src/controllers",
+        "/src/enums", "/src/functions", "/src/helpers", "/src/tools", "/src/icons",
+        "/src/main"};
     List<String> caminhosDefault = Arrays.asList(caminhos);
 
     //INSTACIA DOS FILE CHOOSER
@@ -167,7 +167,7 @@ public class ScreenGerador extends JFrame {
             new FileNameExtensionFilter("DIRETÓRIO", "..", ".."),
             JFileChooser.DIRECTORIES_ONLY);
     private String destinyPath;
-    private final String defaultPath = "C:\\..\\..\\..\\Documents\\NetBeansProjects";
+    private final String defaultPath = "C:/../../../Documents/NetBeansProjects";
 
     List<String> lastPath;
 
@@ -375,8 +375,6 @@ public class ScreenGerador extends JFrame {
 
                         Atributo atributo = new Atributo(var, type, size);
 
-                        System.out.println("Atributo -> " + atributo.toString());
-
                         atributos.add(atributo);
                         crud.setAtributos(atributos);
 
@@ -433,8 +431,6 @@ public class ScreenGerador extends JFrame {
                     } else {
                         String entidade = capitalize.capitalizeVarUpper(capitalize.removerAcentos(txtEnt.getText()));
                         String autor = txtAutor.getText();
-                        System.out.println("ENTIDADE -> " + entidade);
-                        System.out.println("AUTOR -> " + autor);
                         confirmDialog = new BuildConfirmDialog(
                                 DialogConfirmType.YES_NO,
                                 "Deseja realmente gerar uma GUI - CRUD?",
@@ -454,7 +450,7 @@ public class ScreenGerador extends JFrame {
                                     autor,
                                     entidade);
                             if (crud.isImageCrud()) {
-                                fileManager.createSingleDirectory(destinyPath, "\\src\\images");
+                                fileManager.createSingleDirectory(destinyPath, "/src/images");
                                 GeradorGUI_Imagem geradorGUI_Imagem = new GeradorGUI_Imagem(
                                         entidade,
                                         "screens",
@@ -532,8 +528,6 @@ public class ScreenGerador extends JFrame {
                     } else {
                         String entidade = capitalize.capitalizeVarUpper(capitalize.removerAcentos(txtEnt.getText()));
                         String autor = txtAutor.getText();
-                        System.out.println("ENTIDADE -> " + entidade);
-                        System.out.println("AUTOR -> " + autor);
                         confirmDialog = new BuildConfirmDialog(
                                 DialogConfirmType.YES_NO,
                                 "Deseja realmente gerar uma Entidade?",
@@ -578,8 +572,6 @@ public class ScreenGerador extends JFrame {
                     } else {
                         String entidade = capitalize.capitalizeVarUpper(capitalize.removerAcentos(txtEnt.getText()));
                         String autor = txtAutor.getText();
-                        System.out.println("ENTIDADE -> " + entidade);
-                        System.out.println("AUTOR -> " + autor);
                         confirmDialog = new BuildConfirmDialog(
                                 DialogConfirmType.YES_NO,
                                 "Deseja realmente gerar um Controller?",
@@ -625,8 +617,6 @@ public class ScreenGerador extends JFrame {
                     } else {
                         String entidade = capitalize.capitalizeVarUpper(capitalize.removerAcentos(txtEnt.getText()));
                         String autor = txtAutor.getText();
-                        System.out.println("ENTIDADE -> " + entidade);
-                        System.out.println("AUTOR -> " + autor);
                         confirmDialog = new BuildConfirmDialog(
                                 DialogConfirmType.YES_NO,
                                 "Deseja realmente gerar uma Classe Main?",
@@ -671,15 +661,13 @@ public class ScreenGerador extends JFrame {
                     } else {
                         String entidade = capitalize.capitalizeVarUpper(capitalize.removerAcentos(txtEnt.getText()));
                         String autor = txtAutor.getText();
-                        System.out.println("ENTIDADE -> " + entidade);
-                        System.out.println("AUTOR -> " + autor);
                         confirmDialog = new BuildConfirmDialog(
                                 DialogConfirmType.YES_NO,
                                 "Deseja realmente gerar uma Interface?",
                                 "CONFIRMAÇÃO");
                         if (confirmDialog.getResponse() == JOptionPane.YES_OPTION) {
                             if (crud.isImageCrud()) {
-                                fileManager.createSingleDirectory(destinyPath, "\\src\\images");
+                                fileManager.createSingleDirectory(destinyPath, "/src/images");
                                 GeradorGUI_Imagem geradorGUI_Imagem = new GeradorGUI_Imagem(
                                         entidade,
                                         "screens",
@@ -725,7 +713,7 @@ public class ScreenGerador extends JFrame {
                         throw new Exception("Defina a Entidade!");
                     } else {
                         String entidade = capitalize.capitalizeVarUpper(capitalize.removerAcentos(txtEnt.getText()));
-                        String nomeArquivo = "src\\entidades_geradas\\" + entidade.trim();
+                        String nomeArquivo = "src/entidades_geradas/" + entidade.trim();
                         atributos = new Atributo().forListStringToList(fileManager.buscarDadosEmArquivoTxt(nomeArquivo));                        
                         if (atributos.isEmpty()) {
                             atributos.clear();
@@ -849,7 +837,7 @@ public class ScreenGerador extends JFrame {
                 throw new Exception("Campo Entidade ou variáveis não cadastradas!");
             } else {
                 String entidade = capitalize.capitalizeVarUpper(capitalize.removerAcentos(txtEnt.getText()));
-                String nomeArquivo = "src\\entidades_geradas\\" + entidade.trim();
+                String nomeArquivo = "src/entidades_geradas/" + entidade.trim();
                 Atributo atr = new Atributo();
                 fileManager.armazenarDadosEmArquivoTxt(atr.toListString(atributos), nomeArquivo);
             }
